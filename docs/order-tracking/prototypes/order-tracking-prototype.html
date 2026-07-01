@@ -95,7 +95,7 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex overflow-hidden">
+<body class="bg-slate-50 text-slate-800 font-sans h-screen flex overflow-hidden">
 
     <!-- Global API Loading Overlay (for Form Submission) -->
     <div id="loading-overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex flex-col items-center justify-content-center hidden opacity-0 transition-opacity duration-300">
@@ -304,7 +304,7 @@
             <!-- TAB 3: CREATE ORDER -->
             <section id="panel-create-order" class="max-w-3xl mx-auto tab-panel hidden">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 space-y-6 relative overflow-hidden">
-                    <h3 class="text-xl font-bold text-slate-900 font-title border-b border-slate-100 pb-4">Tạo Đơn Vận Chuyển Mới</h3>
+                    <h3 class="text-xl font-bold text-slate-900 font-title border-b border-slate-100 pb-4">Tạo Đơn Vận Chuyển</h3>
                     
                     <form id="create-order-form" onsubmit="submitNewOrder(event)" class="space-y-6">
                         <!-- Receiver Info Section -->
@@ -415,7 +415,7 @@
                     <div class="flex items-center gap-3">
                         <h3 id="details-code" class="text-xl font-bold text-slate-900 font-title">CHI TIẾT ĐƠN HÀNG: #247-00123</h3>
                         <!-- Status Badge -->
-                        <span id="details-badge" class="px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-500">Đang Giao</span>
+                        <span id="details-badge-container"></span>
                     </div>
                     <button onclick="switchTab('order-list')" class="text-slate-400 hover:text-slate-600 text-lg transition"><i class="fa-solid fa-circle-xmark"></i></button>
                 </div>
@@ -644,13 +644,18 @@
             document.getElementById(`panel-${tabId}`).classList.remove('hidden');
             // Add active styling to nav button
             const navBtn = document.getElementById(`nav-${tabId}`);
-            if (navBtn) navBtn.classList.add('nav-active');
+            if (navBtn) {
+                navBtn.classList.add('nav-active');
+            } else if (tabId === 'order-details') {
+                const listBtn = document.getElementById('nav-order-list');
+                if (listBtn) listBtn.classList.add('nav-active');
+            }
 
             // Update Header Title
             const titles = {
                 'dashboard': 'Dashboard Tổng quan',
-                'order-list': 'Quản lý Danh sách Đơn hàng',
-                'create-order': 'Tạo Đơn Vận Chuyển Mới',
+                'order-list': 'Quản lý Đơn hàng',
+                'create-order': 'Tạo Đơn Vận Chuyển',
                 'order-details': 'Chi tiết Đơn hàng & Tracking'
             };
             document.getElementById('header-title').innerText = titles[tabId];
@@ -892,14 +897,24 @@
             document.getElementById('details-code').innerText = `CHI TIẾT ĐƠN HÀNG: #${o.id}`;
             
             // Sync status variables in database if toggled on-the-fly
+            let statusChanged = false;
             if (isErrorState && o.status !== 'FAILED' && o.status !== 'RETURNED') {
                 o.status = 'FAILED';
+                statusChanged = true;
             } else if (!isErrorState && (o.status === 'FAILED' || o.status === 'RETURNED')) {
                 o.status = 'DELIVERING';
+                statusChanged = true;
             }
 
-            const badge = document.getElementById('details-badge');
-            badge.outerHTML = getStatusBadgeHTML(o.status);
+            if (statusChanged) {
+                updateDashboardMetrics();
+                filterOrders();
+            }
+
+            const badgeContainer = document.getElementById('details-badge-container');
+            if (badgeContainer) {
+                badgeContainer.innerHTML = getStatusBadgeHTML(o.status);
+            }
 
             // Fill summary fields
             document.getElementById('details-name').innerText = o.name;
@@ -1015,6 +1030,7 @@
 
                 renderOrderDetails();
                 updateDashboardMetrics();
+                filterOrders();
             }
         }
 
