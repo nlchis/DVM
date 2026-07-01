@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Order Tracking - Logistics Pro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-bright": "#f8f9ff",
+                        "surface-variant": "#d3e4fe",
+                        "secondary-fixed": "#d7e3f9",
+                        "on-secondary-container": "#596577",
+                        "tertiary": "#004e33",
+                        "surface-container-low": "#eff4ff",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-container": "#5debaf",
+                        "inverse-primary": "#b2c5ff",
+                        "on-surface": "#0b1c30",
+                        "on-primary-fixed-variant": "#0040a2",
+                        "surface-container-highest": "#d3e4fe",
+                        "outline-variant": "#c3c6d6",
+                        "primary": "#003d9b",
+                        "secondary-container": "#d7e3f9",
+                        "on-error": "#ffffff",
+                        "surface-container-high": "#dce9ff",
+                        "on-primary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#c4d2ff",
+                        "surface": "#f8f9ff",
+                        "background": "#f8f9ff",
+                        "surface-container": "#e5eeff",
+                        "inverse-surface": "#213145",
+                        "primary-container": "#0052cc",
+                        "on-error-container": "#93000a",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed": "#6ffbbe",
+                        "on-surface-variant": "#434654",
+                        "tertiary-fixed-dim": "#4edea3",
+                        "sidebar-navy": "#0F172A",
+                        "background-subtle": "#F8FAFC",
+                        "on-secondary-fixed": "#101c2c",
+                        "status-warning": "#F59E0B",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-tint": "#0c56d0",
+                        "on-tertiary-fixed": "#002113",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "primary-fixed": "#dae2ff",
+                        "primary-fixed-dim": "#b2c5ff",
+                        "secondary": "#535f71",
+                        "on-background": "#0b1c30",
+                        "status-error": "#EF4444",
+                        "border-light": "#E2E8F0",
+                        "on-secondary-fixed-variant": "#3c4859",
+                        "surface-dim": "#cbdbf5",
+                        "secondary-fixed-dim": "#bbc7dc",
+                        "tertiary-container": "#006846",
+                        "outline": "#737685",
+                        "on-primary-fixed": "#001848",
+                        "on-secondary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "4px",
+                        "gutter": "24px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "32px",
+                        "sidebar-width": "260px",
+                        "card-padding": "20px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Inter"],
+                        "data-mono": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-md-mobile": ["Inter"],
+                        "label-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "data-mono": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "headline-md-mobile": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "label-md": ["13px", {"lineHeight": "18px", "letterSpacing": "0.05em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .stepper-line {
+            background: linear-gradient(90deg, #0052cc 0%, #0052cc 66%, #E2E8F0 66%, #E2E8F0 100%);
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .accordion-open .accordion-content {
+            max-height: 500px;
+        }
+        .accordion-open .accordion-icon {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md overflow-x-hidden">
+<!-- Side Navigation Shell (from JSON) -->
+<aside class="fixed left-0 top-0 h-full w-[260px] bg-sidebar-navy shadow-md flex flex-col h-full py-6 z-50">
+<div class="px-6 mb-10">
+<h1 class="font-display-lg text-display-lg font-bold text-white">Logistics Pro</h1>
+<p class="text-on-secondary-container text-label-md">Management Portal</p>
+</div>
+<nav class="flex-1 px-4 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-secondary-container dark:text-secondary-fixed-dim hover:bg-primary-container/10 hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-white font-bold border-l-4 border-primary bg-primary-container/20 group" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-label-md text-label-md">Order Management</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-secondary-container dark:text-secondary-fixed-dim hover:bg-primary-container/10 hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined">local_shipping</span>
+<span class="font-label-md text-label-md">Create Shipment</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-secondary-container dark:text-secondary-fixed-dim hover:bg-primary-container/10 hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined">bar_chart</span>
+<span class="font-label-md text-label-md">Statistics</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-secondary-container dark:text-secondary-fixed-dim hover:bg-primary-container/10 hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</nav>
+<div class="px-6 mt-auto">
+<button class="w-full bg-primary text-white py-3 rounded-lg font-label-md flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined">add</span>
+                New Shipment
+            </button>
+</div>
+</aside>
+<!-- Top Navigation Shell (from JSON) -->
+<header class="fixed top-0 right-0 w-[calc(100%-260px)] h-16 bg-surface dark:bg-inverse-surface border-b border-border-light flex justify-between items-center px-8 w-full z-40 shadow-sm">
+<div class="flex items-center gap-4">
+<span class="font-headline-md text-headline-md font-extrabold text-primary dark:text-inverse-primary">Order Tracking</span>
+<div class="relative ml-4">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant material-symbols-outlined">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border border-border-light rounded-full text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 w-64" placeholder="Search order ID..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="text-on-surface-variant hover:bg-surface-container transition-colors p-2 rounded-full relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-container transition-colors p-2 rounded-full">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="flex items-center gap-3 pl-4 border-l border-border-light">
+<div class="text-right">
+<p class="font-label-md text-on-surface">Alex Dispatcher</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-wider">Senior Manager</p>
+</div>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a logistics dispatcher in a modern office setting, bright lighting, soft focused background, corporate photography style with cool blue and white tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDOtVB7WISJMfNaVUIFA08dtdYIttinAtJU0mDT2pRiq_HNLeHOG0c0IH4Jhsc2i79XSNUnK0pg6LOsUSTHw6Tpq-NjgIcPQSyFV7XdBthLMa7HR6KwhzW3QiDA0-7Fk-Rf2AbHkWMNSEkLNGv78MSCIgFoXqSgBZiXUIvtmK2CdNKomDiRf88lDLG5CenSApXc7gfieKWfGO-REMg1v6XY-KdjP8aKn69e3ajDG0gbNq8flhYAs_oOZRmeKgPaydoNsFZn-_q_Ahk"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-[260px] pt-16 min-h-screen">
+<div class="p-8 max-w-[1600px] mx-auto">
+<!-- Breadcrumbs & Header Actions -->
+<div class="flex justify-between items-center mb-8">
+<div>
+<nav class="flex gap-2 text-label-sm text-on-surface-variant mb-1">
+<a class="hover:text-primary" href="#">Dashboard</a>
+<span>/</span>
+<a class="hover:text-primary" href="#">Orders</a>
+<span>/</span>
+<span class="text-on-surface">LP-9283-4712</span>
+</nav>
+<h2 class="font-display-lg text-display-lg text-on-surface flex items-center gap-3">
+                        Order #LP-9283-4712
+                        <span class="px-3 py-1 bg-primary-container/10 text-primary text-label-sm rounded-full border border-primary/20">In Transit</span>
+</h2>
+</div>
+<div class="flex gap-4">
+<button class="flex items-center gap-2 px-6 py-2.5 bg-tertiary-container text-on-tertiary-container rounded-lg font-label-md hover:opacity-90 transition-all shadow-sm">
+<span class="material-symbols-outlined">print</span>
+                        Print Label
+                    </button>
+<button class="flex items-center gap-2 px-6 py-2.5 bg-surface-container-highest text-on-surface rounded-lg font-label-md hover:bg-surface-container-high transition-all border border-border-light shadow-sm">
+<span class="material-symbols-outlined">support_agent</span>
+                        Support Request
+                    </button>
+</div>
+</div>
+<!-- Tracking Stepper -->
+<div class="bg-white rounded-xl p-8 border border-border-light shadow-sm mb-8 relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1.5 h-full bg-primary"></div>
+<div class="flex justify-between relative">
+<!-- Progress Line -->
+<div class="absolute top-6 left-[5%] right-[5%] h-1 stepper-line rounded-full z-0"></div>
+<!-- Step 1 -->
+<div class="relative z-10 flex flex-col items-center group">
+<div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white shadow-lg mb-3">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<p class="font-label-md text-on-surface">Picked up</p>
+<p class="text-label-sm text-on-surface-variant">Oct 12, 09:30 AM</p>
+</div>
+<!-- Step 2 -->
+<div class="relative z-10 flex flex-col items-center group">
+<div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white shadow-lg mb-3">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">warehouse</span>
+</div>
+<p class="font-label-md text-on-surface">In Warehouse</p>
+<p class="text-label-sm text-on-surface-variant">Oct 13, 02:15 PM</p>
+</div>
+<!-- Step 3 -->
+<div class="relative z-10 flex flex-col items-center group">
+<div class="w-12 h-12 rounded-full bg-primary-container border-4 border-white flex items-center justify-center text-white shadow-lg mb-3 ring-2 ring-primary">
+<span class="material-symbols-outlined animate-pulse">local_shipping</span>
+</div>
+<p class="font-label-md text-primary">Shipping</p>
+<p class="text-label-sm text-on-surface-variant">In Progress</p>
+</div>
+<!-- Step 4 -->
+<div class="relative z-10 flex flex-col items-center group opacity-40">
+<div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container mb-3">
+<span class="material-symbols-outlined">package_2</span>
+</div>
+<p class="font-label-md text-on-surface">Delivered</p>
+<p class="text-label-sm text-on-surface-variant">Pending</p>
+</div>
+</div>
+</div>
+<!-- Two Column Layout -->
+<div class="grid grid-cols-12 gap-8">
+<!-- Left: Order Details Accordions -->
+<div class="col-span-12 lg:col-span-7 space-y-4">
+<!-- Accordion 1: Sender/Receiver -->
+<div class="bg-white border border-border-light rounded-xl overflow-hidden shadow-sm transition-all duration-200 accordion-item accordion-open">
+<button class="w-full flex items-center justify-between px-6 py-5 hover:bg-background-subtle transition-colors" onclick="toggleAccordion(this)">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary">person_pin_circle</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Sender/Receiver Info</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant accordion-icon transition-transform">expand_more</span>
+</button>
+<div class="accordion-content px-6 border-t border-border-light">
+<div class="py-6 grid grid-cols-2 gap-8">
+<div>
+<p class="text-label-sm text-on-surface-variant uppercase tracking-widest mb-3">Sender</p>
+<p class="font-label-md text-on-surface">Tech Logistics Hub</p>
+<p class="text-body-md text-on-surface-variant">452 Industrial Parkway<br/>Austin, TX 78701<br/>United States</p>
+<p class="text-body-md text-primary mt-2">+1 (512) 555-0192</p>
+</div>
+<div class="border-l border-border-light pl-8">
+<p class="text-label-sm text-on-surface-variant uppercase tracking-widest mb-3">Receiver</p>
+<p class="font-label-md text-on-surface">Global Solutions Inc.</p>
+<p class="text-body-md text-on-surface-variant">2918 Corporate Way<br/>Portland, OR 97204<br/>United States</p>
+<p class="text-body-md text-primary mt-2">+1 (503) 555-0847</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Accordion 2: Package Details -->
+<div class="bg-white border border-border-light rounded-xl overflow-hidden shadow-sm transition-all duration-200 accordion-item">
+<button class="w-full flex items-center justify-between px-6 py-5 hover:bg-background-subtle transition-colors" onclick="toggleAccordion(this)">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary">inventory</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Package Details</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant accordion-icon transition-transform">expand_more</span>
+</button>
+<div class="accordion-content px-6 border-t border-border-light">
+<div class="py-6 grid grid-cols-3 gap-6">
+<div class="bg-background-subtle p-4 rounded-lg border border-border-light">
+<p class="text-label-sm text-on-surface-variant mb-1">Weight</p>
+<p class="font-headline-sm text-on-surface">42.5 kg</p>
+</div>
+<div class="bg-background-subtle p-4 rounded-lg border border-border-light">
+<p class="text-label-sm text-on-surface-variant mb-1">Dimensions</p>
+<p class="font-headline-sm text-on-surface">120 x 80 x 60 cm</p>
+</div>
+<div class="bg-background-subtle p-4 rounded-lg border border-border-light">
+<p class="text-label-sm text-on-surface-variant mb-1">Quantity</p>
+<p class="font-headline-sm text-on-surface">3 Items</p>
+</div>
+<div class="col-span-3 pt-2">
+<p class="text-label-sm text-on-surface-variant mb-2">Item Descriptions</p>
+<ul class="space-y-2">
+<li class="flex justify-between items-center text-body-md text-on-surface bg-surface-container-low px-4 py-2 rounded">
+<span>Industrial Server Unit Model X</span>
+<span class="font-bold">x1</span>
+</li>
+<li class="flex justify-between items-center text-body-md text-on-surface bg-surface-container-low px-4 py-2 rounded">
+<span>Fiber Optic Cabling Spools (500m)</span>
+<span class="font-bold">x2</span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<!-- Accordion 3: Shipping Fees -->
+<div class="bg-white border border-border-light rounded-xl overflow-hidden shadow-sm transition-all duration-200 accordion-item">
+<button class="w-full flex items-center justify-between px-6 py-5 hover:bg-background-subtle transition-colors" onclick="toggleAccordion(this)">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary">payments</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Shipping Fees</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant accordion-icon transition-transform">expand_more</span>
+</button>
+<div class="accordion-content px-6 border-t border-border-light">
+<div class="py-6 space-y-3">
+<div class="flex justify-between text-body-md text-on-surface">
+<span>Base Freight Cost</span>
+<span class="font-data-mono">$450.00</span>
+</div>
+<div class="flex justify-between text-body-md text-on-surface">
+<span>Fuel Surcharge (12%)</span>
+<span class="font-data-mono">$54.00</span>
+</div>
+<div class="flex justify-between text-body-md text-on-surface">
+<span>Insurance Premium</span>
+<span class="font-data-mono">$25.00</span>
+</div>
+<div class="flex justify-between text-body-md text-on-surface pt-3 border-t border-dashed border-border-light">
+<span class="font-bold">Total Amount (USD)</span>
+<span class="font-bold text-headline-sm text-primary">$529.00</span>
+</div>
+<div class="mt-4 flex items-center gap-2 text-tertiary font-label-md">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                    Paid via Corporate Account
+                                </div>
+</div>
+</div>
+</div>
+<!-- Accordion 4: Notes -->
+<div class="bg-white border border-border-light rounded-xl overflow-hidden shadow-sm transition-all duration-200 accordion-item">
+<button class="w-full flex items-center justify-between px-6 py-5 hover:bg-background-subtle transition-colors" onclick="toggleAccordion(this)">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary">note_alt</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Notes &amp; Special Instructions</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant accordion-icon transition-transform">expand_more</span>
+</button>
+<div class="accordion-content px-6 border-t border-border-light">
+<div class="py-6">
+<p class="text-body-md text-on-surface-variant bg-surface-container-low p-4 rounded-lg italic">
+                                    "Handle with care. Electronics inside. Receiver requested delivery specifically between 2 PM and 5 PM on weekdays. Security clearance required at Portland gate. Please contact James at +1 (503) 555-0847 upon arrival."
+                                </p>
+</div>
+</div>
+</div>
+</div>
+<!-- Right: Map & Real-time Location -->
+<div class="col-span-12 lg:col-span-5 flex flex-col gap-8">
+<!-- Real-time Map -->
+<div class="bg-white border border-border-light rounded-xl overflow-hidden shadow-sm flex flex-col h-full min-h-[500px]">
+<div class="p-6 border-b border-border-light flex justify-between items-center">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Live Route Map</h3>
+<p class="text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
+                                    Last updated: 2 mins ago
+                                </p>
+</div>
+<button class="p-2 bg-surface-container-low rounded-lg hover:bg-surface-container transition-colors text-primary">
+<span class="material-symbols-outlined">fullscreen</span>
+</button>
+</div>
+<div class="flex-1 relative">
+<div class="absolute inset-0 bg-slate-200">
+<div class="w-full h-full" data-alt="A sophisticated custom logistics map in a light silver corporate style showing a route from Texas to Oregon across the USA. Minimalist markers represent major cities, and a blue line shows the current trajectory. High-end GIS software aesthetic." data-location="United States" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBmE3BRoiQO-99SGp1Q_abzpsjCEnhTHYP7cq2xytTQ5H1l4zkrMLmJ2ci0HEXV0po0t_4EqTN3CVvaFVD6tc5YUinqDSsi5yDgz8ns3zG-FbMm9fKBU2T131Ko-mKbRaXAUgvyWd3R5bPWRvNeMw0llPUD93p6Wooan9VRnJe50IkDKVB68218IMgcu9atoMTgzw0esBXrY8-Qs698nXhC8E79jaTEiM0tcw8YdOuyWpvKwsmEsBzgPDwGVH2gyJXdcLDz-OiHAPA')"></div>
+</div>
+<!-- Custom Marker Overlays (CSS Based) -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+<div class="relative group cursor-pointer">
+<div class="absolute inset-0 bg-primary/20 rounded-full scale-[3] animate-ping"></div>
+<div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white border-4 border-white shadow-xl relative z-10">
+<span class="material-symbols-outlined text-[20px]">local_shipping</span>
+</div>
+<div class="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-inverse-surface text-white text-[10px] px-2 py-1 rounded whitespace-nowrap shadow-lg">
+                                        TRUCK ID: VOL-882
+                                    </div>
+</div>
+</div>
+<!-- Floating Map Controls -->
+<div class="absolute bottom-6 right-6 flex flex-col gap-2">
+<button class="w-10 h-10 bg-white rounded-lg shadow-md border border-border-light flex items-center justify-center text-on-surface-variant hover:text-primary transition-all">
+<span class="material-symbols-outlined">add</span>
+</button>
+<button class="w-10 h-10 bg-white rounded-lg shadow-md border border-border-light flex items-center justify-center text-on-surface-variant hover:text-primary transition-all">
+<span class="material-symbols-outlined">remove</span>
+</button>
+</div>
+</div>
+<div class="p-6 bg-surface-container-low">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-primary shadow-sm border border-border-light">
+<span class="material-symbols-outlined text-[28px]">distance</span>
+</div>
+<div class="flex-1">
+<p class="text-label-sm text-on-surface-variant uppercase tracking-wider">Estimated Arrival</p>
+<div class="flex justify-between items-end">
+<h4 class="font-headline-md text-headline-md text-on-surface">Tomorrow, 4:30 PM</h4>
+<span class="text-primary font-bold">124 miles left</span>
+</div>
+</div>
+</div>
+<div class="mt-4 h-2 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="w-[78%] h-full bg-primary rounded-full shadow-[0_0_8px_rgba(0,82,204,0.4)]"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<script>
+        function toggleAccordion(button) {
+            const item = button.closest('.accordion-item');
+            const isOpen = item.classList.contains('accordion-open');
+            
+            // Close all others
+            document.querySelectorAll('.accordion-item').forEach(other => {
+                if (other !== item) other.classList.remove('accordion-open');
+            });
+            
+            // Toggle current
+            if (isOpen) {
+                item.classList.remove('accordion-open');
+            } else {
+                item.classList.add('accordion-open');
+            }
+        }
+
+        // Initialize micro-animations
+        document.addEventListener('DOMContentLoaded', () => {
+            const items = document.querySelectorAll('.accordion-item');
+            items.forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(10px)';
+                setTimeout(() => {
+                    item.style.transition = 'all 0.4s ease-out';
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0)';
+                }, 100 * (index + 1));
+            });
+        });
+    </script>
+</body></html>

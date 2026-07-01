@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Create Shipment | Logistics Pro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-bright": "#f8f9ff",
+                    "surface-variant": "#d3e4fe",
+                    "secondary-fixed": "#d7e3f9",
+                    "on-secondary-container": "#596577",
+                    "tertiary": "#004e33",
+                    "surface-container-low": "#eff4ff",
+                    "error-container": "#ffdad6",
+                    "on-tertiary-container": "#5debaf",
+                    "inverse-primary": "#b2c5ff",
+                    "on-surface": "#0b1c30",
+                    "on-primary-fixed-variant": "#0040a2",
+                    "surface-container-highest": "#d3e4fe",
+                    "outline-variant": "#c3c6d6",
+                    "primary": "#003d9b",
+                    "secondary-container": "#d7e3f9",
+                    "on-error": "#ffffff",
+                    "surface-container-high": "#dce9ff",
+                    "on-primary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "on-primary-container": "#c4d2ff",
+                    "surface": "#f8f9ff",
+                    "background": "#f8f9ff",
+                    "surface-container": "#e5eeff",
+                    "inverse-surface": "#213145",
+                    "primary-container": "#0052cc",
+                    "on-error-container": "#93000a",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-fixed": "#6ffbbe",
+                    "on-surface-variant": "#434654",
+                    "tertiary-fixed-dim": "#4edea3",
+                    "sidebar-navy": "#0F172A",
+                    "background-subtle": "#F8FAFC",
+                    "on-secondary-fixed": "#101c2c",
+                    "status-warning": "#F59E0B",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-on-surface": "#eaf1ff",
+                    "surface-tint": "#0c56d0",
+                    "on-tertiary-fixed": "#002113",
+                    "on-tertiary-fixed-variant": "#005236",
+                    "primary-fixed": "#dae2ff",
+                    "primary-fixed-dim": "#b2c5ff",
+                    "secondary": "#535f71",
+                    "on-background": "#0b1c30",
+                    "status-error": "#EF4444",
+                    "border-light": "#E2E8F0",
+                    "on-secondary-fixed-variant": "#3c4859",
+                    "surface-dim": "#cbdbf5",
+                    "secondary-fixed-dim": "#bbc7dc",
+                    "tertiary-container": "#006846",
+                    "outline": "#737685",
+                    "on-primary-fixed": "#001848",
+                    "on-secondary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "base": "4px",
+                    "gutter": "24px",
+                    "margin-mobile": "16px",
+                    "margin-desktop": "32px",
+                    "sidebar-width": "260px",
+                    "card-padding": "20px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Inter"],
+                    "data-mono": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "headline-md-mobile": ["Inter"],
+                    "label-md": ["Inter"]
+            },
+            "fontSize": {
+                    "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "data-mono": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "headline-md-mobile": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "label-md": ["13px", {"lineHeight": "18px", "letterSpacing": "0.05em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9ff; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .step-transition { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .form-input-focus:focus { outline: none; border-color: #003d9b; box-shadow: 0 0 0 3px rgba(0, 61, 155, 0.1); }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .glass-sidebar { backdrop-filter: blur(8px); background: rgba(15, 23, 42, 0.95); }
+    </style>
+</head>
+<body class="overflow-hidden">
+<!-- Global Layout Wrapper -->
+<div class="flex h-screen w-full">
+<!-- Predicted Component: SideNavBar -->
+<aside class="fixed left-0 top-0 h-full w-[260px] bg-sidebar-navy shadow-md flex flex-col py-6 z-50">
+<div class="px-6 mb-10">
+<h1 class="font-display-lg text-display-lg font-bold text-white tracking-tight">Logistics Pro</h1>
+<p class="font-label-md text-label-md text-secondary-fixed-dim mt-1">Management Portal</p>
+</div>
+<nav class="flex-1 space-y-1 px-3">
+<!-- Dashboard -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-secondary-container dark:text-secondary-fixed-dim hover:bg-primary-container/10 hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined text-xl">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<!-- Order Management -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-secondary-container dark:text-secondary-fixed-dim hover:bg-primary-container/10 hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined text-xl">inventory_2</span>
+<span class="font-label-md text-label-md">Order Management</span>
+</a>
+<!-- Create Shipment (Active) -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-white font-bold border-l-4 border-primary bg-primary-container/20 group" href="#">
+<span class="material-symbols-outlined text-xl">local_shipping</span>
+<span class="font-label-md text-label-md">Create Shipment</span>
+</a>
+<!-- Statistics -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-secondary-container dark:text-secondary-fixed-dim hover:bg-primary-container/10 hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined text-xl">bar_chart</span>
+<span class="font-label-md text-label-md">Statistics</span>
+</a>
+<!-- Settings -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-secondary-container dark:text-secondary-fixed-dim hover:bg-primary-container/10 hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined text-xl">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</nav>
+<div class="mt-auto px-6">
+<button class="w-full py-3 px-4 bg-primary text-white rounded-lg font-label-md text-label-md hover:bg-primary-container transition-all active:scale-95">
+                    New Shipment
+                </button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-[260px] flex-1 flex flex-col h-screen overflow-hidden bg-surface-bright">
+<!-- Predicted Component: TopNavBar -->
+<header class="flex justify-between items-center px-8 w-full h-16 bg-surface border-b border-border-light z-40">
+<div class="flex items-center gap-4">
+<h2 class="font-headline-md text-headline-md font-extrabold text-primary">Logistics Management</h2>
+<div class="relative group ml-8">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="pl-10 pr-4 py-2 w-64 bg-surface-container-low border border-border-light rounded-full text-body-md focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" placeholder="Search shipments..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">help</button>
+<div class="flex items-center gap-3 pl-4 border-l border-border-light">
+<div class="text-right">
+<p class="font-label-md text-label-md text-on-surface">Alex Thompson</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Admin</p>
+</div>
+<img class="w-10 h-10 rounded-full border-2 border-primary object-cover" data-alt="A professional headshot of a logistics manager in a bright office setting, with a friendly expression. The image has soft, high-key lighting and a modern, corporate aesthetic consistent with a SaaS management tool interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAm4UDzmCeODt--tsaJfesb4_KQ1W2dEry8aY094s0M8DhYiZyJWK2hi3jqZpQgZ-px2W8MTAJSyTmOQ0wM1abDC6cI-ebW-n29WvUthP37mU4Vicuycrc-ZuSRPgPO4pPpiQnsKdVAqorzZti3Q1UxhN0S0BznGbxZvjk0Byu-tbl6m0DyrZNvcfGSAGNwNllb0i0G9EYwYFIXiMcNNfMXHwsaLxgOtTeWso3DhQos1GaJTAAmt5Bp2tLa8EefNNsR2l209vkSRtk"/>
+</div>
+</div>
+</header>
+<!-- Page Content Grid -->
+<div class="flex-1 flex overflow-hidden">
+<!-- Left Sidebar: Recent/Drafts -->
+<aside class="w-80 bg-white border-r border-border-light flex flex-col">
+<div class="p-6 border-b border-border-light">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Recent Shipments</h3>
+</div>
+<div class="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-3">
+<!-- Draft Card -->
+<div class="p-4 border border-primary/20 bg-primary-container/5 rounded-xl hover:shadow-md transition-all cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<span class="px-2 py-0.5 bg-primary-container/10 text-primary text-[10px] font-bold rounded uppercase tracking-wider">Draft</span>
+<span class="text-[11px] text-on-surface-variant">2h ago</span>
+</div>
+<h4 class="font-label-md text-label-md text-on-surface group-hover:text-primary transition-colors">New York → London</h4>
+<p class="text-[12px] text-on-surface-variant mt-1">24.5kg | Air Freight</p>
+</div>
+<!-- Recent Item -->
+<div class="p-4 border border-border-light hover:border-primary/30 rounded-xl hover:shadow-sm transition-all cursor-pointer">
+<div class="flex justify-between items-start mb-2">
+<span class="px-2 py-0.5 bg-tertiary/10 text-tertiary text-[10px] font-bold rounded uppercase tracking-wider">Completed</span>
+<span class="text-[11px] text-on-surface-variant">Yesterday</span>
+</div>
+<h4 class="font-label-md text-label-md text-on-surface">Tokyo → Sydney</h4>
+<p class="text-[12px] text-on-surface-variant mt-1">112kg | Sea Cargo</p>
+</div>
+<!-- Recent Item -->
+<div class="p-4 border border-border-light hover:border-primary/30 rounded-xl hover:shadow-sm transition-all cursor-pointer">
+<div class="flex justify-between items-start mb-2">
+<span class="px-2 py-0.5 bg-status-warning/10 text-status-warning text-[10px] font-bold rounded uppercase tracking-wider">In Transit</span>
+<span class="text-[11px] text-on-surface-variant">3 days ago</span>
+</div>
+<h4 class="font-label-md text-label-md text-on-surface">Berlin → Paris</h4>
+<p class="text-[12px] text-on-surface-variant mt-1">15kg | Express</p>
+</div>
+</div>
+</aside>
+<!-- Main Wizard Canvas -->
+<section class="flex-1 overflow-y-auto p-8 bg-surface-container-low custom-scrollbar">
+<!-- Wizard Container -->
+<div class="max-w-4xl mx-auto">
+<!-- Stepper -->
+<div class="mb-10 flex items-center justify-between px-4 relative">
+<!-- Progress Line -->
+<div class="absolute top-5 left-12 right-12 h-[2px] bg-outline-variant z-0">
+<div class="h-full bg-primary transition-all duration-500 w-1/4" id="progress-bar"></div>
+</div>
+<!-- Step 1 -->
+<div class="relative z-10 flex flex-col items-center gap-2 group">
+<div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold shadow-lg ring-4 ring-white">1</div>
+<span class="font-label-md text-label-md text-primary font-bold">Addresses</span>
+</div>
+<!-- Step 2 -->
+<div class="relative z-10 flex flex-col items-center gap-2 group">
+<div class="w-10 h-10 rounded-full bg-outline-variant text-on-surface-variant flex items-center justify-center font-bold ring-4 ring-white">2</div>
+<span class="font-label-md text-label-md text-on-surface-variant">Goods Info</span>
+</div>
+<!-- Step 3 -->
+<div class="relative z-10 flex flex-col items-center gap-2 group">
+<div class="w-10 h-10 rounded-full bg-outline-variant text-on-surface-variant flex items-center justify-center font-bold ring-4 ring-white">3</div>
+<span class="font-label-md text-label-md text-on-surface-variant">Services</span>
+</div>
+<!-- Step 4 -->
+<div class="relative z-10 flex flex-col items-center gap-2 group">
+<div class="w-10 h-10 rounded-full bg-outline-variant text-on-surface-variant flex items-center justify-center font-bold ring-4 ring-white">4</div>
+<span class="font-label-md text-label-md text-on-surface-variant">Payment</span>
+</div>
+</div>
+<!-- Form Card -->
+<div class="bg-white rounded-xl shadow-sm border border-border-light overflow-hidden">
+<div class="p-8 border-b border-border-light bg-surface-container-lowest">
+<h2 class="font-headline-md text-headline-md text-on-surface">Sender &amp; Receiver Information</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Please provide accurate contact details and locations for the shipment.</p>
+</div>
+<form class="p-8 space-y-10" id="shipment-form">
+<!-- Sender Section -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+<div class="space-y-6">
+<div class="flex items-center gap-2 text-primary font-bold">
+<span class="material-symbols-outlined text-lg">unarchive</span>
+<span class="font-label-md text-label-md uppercase tracking-wider">Sender Details</span>
+</div>
+<div class="space-y-4">
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-1.5">Full Name</label>
+<input class="w-full px-4 py-3 rounded-lg border border-border-light bg-white text-body-md form-input-focus transition-all" type="text" value="Jonathan Miller"/>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-1.5">Phone Number</label>
+<div class="flex">
+<span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-border-light bg-surface-container text-on-surface-variant text-body-md">+1</span>
+<input class="flex-1 px-4 py-3 rounded-r-lg border border-border-light bg-white text-body-md form-input-focus transition-all" type="tel" value="555-0123"/>
+</div>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-1.5">Pickup Address</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-3 text-primary text-xl">location_on</span>
+<input class="w-full pl-10 pr-4 py-3 rounded-lg border border-border-light bg-white text-body-md form-input-focus transition-all" type="text" value="350 5th Ave, New York, NY 10118"/>
+</div>
+</div>
+</div>
+</div>
+<!-- Integrated Mini Map -->
+<div class="relative h-full min-h-[300px] rounded-xl overflow-hidden border border-border-light shadow-inner group">
+<div class="absolute inset-0 bg-surface-dim pointer-events-none flex items-center justify-center">
+<!-- Map Placeholder -->
+<div class="w-full h-full" data-alt="A sophisticated digital map visualization of midtown Manhattan, New York, with a silver and light blue minimalist aesthetic. Custom navy and primary blue markers indicate origin and destination points, with soft glow effects on the paths connecting them. The style is professional and matches a high-end corporate logistics dashboard." data-location="New York" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAjGoYnLCs0TFICTawtRNK1t0JN5kzil1gCJBbfMIUe-HBVIg0GO5-IE7tLVxtjj3KalGBxcqaXdsqJmrOKKXC1yLz5WTeBdT4rU2qA-LDCV92_-7ZL9LpeE5H8INEGXmX1nqK-Jdv7lEWJc-UftSBz8NbVU-IPmsXZWKzg2TxzvieeVFmMJ5TYSSh875HbIzpdU-GO92V49Ih5Y3HUPNY7XsE1hVQLS8gMgrMAQ0kqXdE0k7Yi8b6MJJvSU6NpBMMS-QuqwJC41mE')"></div>
+</div>
+<!-- Map Controls (Decorative) -->
+<div class="absolute top-4 right-4 flex flex-col gap-2">
+<button class="w-10 h-10 bg-white rounded shadow-md flex items-center justify-center hover:bg-surface-container transition-colors" type="button">
+<span class="material-symbols-outlined text-on-surface">add</span>
+</button>
+<button class="w-10 h-10 bg-white rounded shadow-md flex items-center justify-center hover:bg-surface-container transition-colors" type="button">
+<span class="material-symbols-outlined text-on-surface">remove</span>
+</button>
+</div>
+<div class="absolute bottom-4 left-4 bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg shadow-sm border border-border-light">
+<p class="text-[11px] font-bold text-on-surface-variant uppercase tracking-widest flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-primary"></span> Origin Point
+                                            </p>
+</div>
+</div>
+</div>
+<div class="h-px bg-border-light"></div>
+<!-- Receiver Section -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+<div class="space-y-6">
+<div class="flex items-center gap-2 text-tertiary font-bold">
+<span class="material-symbols-outlined text-lg">archive</span>
+<span class="font-label-md text-label-md uppercase tracking-wider">Receiver Details</span>
+</div>
+<div class="space-y-4">
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-1.5">Recipient Name</label>
+<input class="w-full px-4 py-3 rounded-lg border border-border-light bg-white text-body-md form-input-focus transition-all" placeholder="Enter recipient's full name" type="text"/>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-1.5">Phone Number</label>
+<div class="flex">
+<span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-border-light bg-surface-container text-on-surface-variant text-body-md">+44</span>
+<input class="flex-1 px-4 py-3 rounded-r-lg border border-border-light bg-white text-body-md form-input-focus transition-all" placeholder="Mobile or landline" type="tel"/>
+</div>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-1.5">Delivery Address</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-3 text-tertiary text-xl">location_on</span>
+<input class="w-full pl-10 pr-4 py-3 rounded-lg border border-border-light bg-white text-body-md form-input-focus transition-all" placeholder="Search for destination address" type="text"/>
+</div>
+</div>
+</div>
+</div>
+<!-- Receiver Map Component -->
+<div class="relative h-full min-h-[300px] rounded-xl overflow-hidden border border-border-light shadow-inner group bg-surface-container">
+<!-- Placeholder animation for map search -->
+<div class="absolute inset-0 flex flex-col items-center justify-center p-8 text-center bg-surface-container-high/50">
+<div class="w-16 h-16 mb-4 rounded-full bg-white flex items-center justify-center text-primary-container animate-pulse">
+<span class="material-symbols-outlined text-3xl">map</span>
+</div>
+<p class="font-headline-sm text-headline-sm text-on-surface-variant">Select a Destination</p>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2">Enter an address on the left to pin the location on the map.</p>
+</div>
+<div class="absolute bottom-4 left-4 bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg shadow-sm border border-border-light">
+<p class="text-[11px] font-bold text-on-surface-variant uppercase tracking-widest flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span> Target Point
+                                            </p>
+</div>
+</div>
+</div>
+</form>
+<!-- Wizard Actions -->
+<div class="p-6 bg-surface-container-low border-t border-border-light flex justify-between items-center">
+<button class="px-6 py-3 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container transition-colors flex items-center gap-2" type="button">
+<span class="material-symbols-outlined">close</span>
+                                    Cancel Shipment
+                                </button>
+<div class="flex gap-4">
+<button class="px-8 py-3 rounded-lg border border-primary text-primary font-label-md text-label-md hover:bg-primary-container/10 transition-colors" type="button">
+                                        Save as Draft
+                                    </button>
+<button class="px-10 py-3 rounded-lg bg-tertiary-container text-on-tertiary-container font-label-md text-label-md hover:bg-tertiary-fixed shadow-md hover:shadow-lg transition-all active:scale-95 flex items-center gap-2" id="next-button" type="button">
+                                        Next Step
+                                        <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Info Cards (Bento style) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+<div class="p-6 bg-white rounded-xl border border-border-light shadow-sm flex items-start gap-4">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined">verified_user</span>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface">Secure Shipping</h4>
+<p class="text-[12px] text-on-surface-variant mt-1">All shipments are insured up to $1,000 automatically.</p>
+</div>
+</div>
+<div class="p-6 bg-white rounded-xl border border-border-light shadow-sm flex items-start gap-4">
+<div class="w-10 h-10 rounded-full bg-tertiary/10 flex items-center justify-center text-tertiary shrink-0">
+<span class="material-symbols-outlined">eco</span>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface">Carbon Neutral</h4>
+<p class="text-[12px] text-on-surface-variant mt-1">We offset 100% of the emissions from your logistics route.</p>
+</div>
+</div>
+<div class="p-6 bg-white rounded-xl border border-border-light shadow-sm flex items-start gap-4">
+<div class="w-10 h-10 rounded-full bg-status-warning/10 flex items-center justify-center text-status-warning shrink-0">
+<span class="material-symbols-outlined">speed</span>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface">Smart Routing</h4>
+<p class="text-[12px] text-on-surface-variant mt-1">AI-driven optimization ensures the fastest delivery time.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+</div>
+<!-- Micro-interactions Script -->
+<script>
+        document.getElementById('next-button').addEventListener('click', function() {
+            // Simple visual feedback for the wizard
+            const stepIcons = document.querySelectorAll('.relative.z-10 .w-10');
+            const stepTexts = document.querySelectorAll('.relative.z-10 .font-label-md');
+            const progressBar = document.getElementById('progress-bar');
+            
+            // Logic to move to next visual step for demo
+            if (progressBar.classList.contains('w-1/4')) {
+                progressBar.classList.replace('w-1/4', 'w-1/2');
+                stepIcons[1].classList.replace('bg-outline-variant', 'bg-primary');
+                stepIcons[1].classList.replace('text-on-surface-variant', 'text-white');
+                stepTexts[1].classList.replace('text-on-surface-variant', 'text-primary');
+                stepTexts[1].classList.add('font-bold');
+                
+                // Add checkmark to previous
+                stepIcons[0].innerHTML = '<span class="material-symbols-outlined">check</span>';
+                stepIcons[0].classList.add('bg-tertiary');
+                stepIcons[0].classList.remove('bg-primary');
+            }
+        });
+
+        // Add subtle hover effect to cards
+        const cards = document.querySelectorAll('.cursor-pointer');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-2px)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body></html>

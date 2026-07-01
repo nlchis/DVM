@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống Theo dõi Đơn hàng - VietMake Prototype</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            850: '#1e293b',
+                            950: '#0b1329',
+                        },
+                        brand: {
+                            50: '#f0f5ff',
+                            100: '#e0eaff',
+                            600: '#0052cc',
+                            700: '#0041a3',
+                            900: '#0b1c30'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        title: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Nav item active styling */
+        .nav-active {
+            @apply bg-slate-800 text-white border-l-4 border-blue-500 font-semibold;
+        }
+
+        /* Pulse animation for active delivery */
+        .pulse-orange {
+            animation: pulse-orange 2s infinite;
+        }
+        @keyframes pulse-orange {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+
+        /* Print Media Stylesheet */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #print-area, #print-area * {
+                visibility: visible;
+            }
+            #print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 20px;
+                background: white !important;
+                color: black !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex overflow-hidden">
+
+    <!-- Global API Loading Overlay (for Form Submission) -->
+    <div id="loading-overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex flex-col items-center justify-content-center hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white p-8 rounded-2xl shadow-xl flex flex-col items-center max-w-sm w-full mx-4">
+            <div class="w-16 h-16 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+            <h3 class="text-lg font-bold text-slate-900 font-title mb-2">Đang liên kết 247Express...</h3>
+            <p class="text-slate-500 text-sm text-center">Hệ thống đang tiến hành đẩy dữ liệu đơn hàng và khởi tạo mã vận đơn tự động. Vui lòng đợi.</p>
+        </div>
+    </div>
+
+    <!-- Main Sidebar -->
+    <aside class="w-64 bg-slate-950 text-slate-400 flex flex-col border-r border-slate-800 no-print flex-shrink-0">
+        <!-- Logo Header -->
+        <div class="h-20 flex items-center px-6 border-b border-slate-800 gap-3">
+            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white text-xl shadow-lg shadow-blue-500/20">
+                <i class="fa-solid fa-cube"></i>
+            </div>
+            <div>
+                <h1 class="text-white font-bold font-title text-base leading-tight">Hệ Thống</h1>
+                <p class="text-xs text-slate-500">Theo Dõi Đơn Hàng</p>
+            </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="flex-1 py-6 px-4 space-y-1 overflow-y-auto">
+            <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-active w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-left transition-all duration-200 hover:bg-slate-900 hover:text-white">
+                <i class="fa-solid fa-chart-pie w-5 text-center text-lg"></i>
+                <span>Dashboard Tổng quan</span>
+            </button>
+            <button onclick="switchTab('order-list')" id="nav-order-list" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-left transition-all duration-200 hover:bg-slate-900 hover:text-white">
+                <i class="fa-solid fa-list-check w-5 text-center text-lg"></i>
+                <span>Quản lý Đơn hàng</span>
+            </button>
+            <button onclick="switchTab('create-order')" id="nav-create-order" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-left transition-all duration-200 hover:bg-slate-900 hover:text-white">
+                <i class="fa-solid fa-circle-plus w-5 text-center text-lg"></i>
+                <span>Tạo Đơn Vận Chuyển</span>
+            </button>
+        </nav>
+
+        <!-- Edge Case / Scenario Controls in Sidebar Footer -->
+        <div class="p-4 border-t border-slate-800 bg-slate-900/50">
+            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Kiểm thử Edge Cases</h4>
+            <div class="space-y-2">
+                <!-- Toggle API Failure on creation -->
+                <label class="flex items-center justify-between text-xs cursor-pointer group">
+                    <span class="text-slate-400 group-hover:text-white transition">Giả lập lỗi kết nối API</span>
+                    <input type="checkbox" id="toggle-api-error" class="rounded border-slate-700 bg-slate-800 text-blue-600 focus:ring-blue-500 focus:ring-offset-slate-900">
+                </label>
+                <!-- Toggle failing SMS state on details -->
+                <label class="flex items-center justify-between text-xs cursor-pointer group">
+                    <span class="text-slate-400 group-hover:text-white transition">Đơn chi tiết bị giao lỗi</span>
+                    <input type="checkbox" id="toggle-details-error" checked class="rounded border-slate-700 bg-slate-800 text-blue-600 focus:ring-blue-500 focus:ring-offset-slate-900" onchange="updateDetailsState()">
+                </label>
+            </div>
+            <div class="mt-4 pt-4 border-t border-slate-800 text-[10px] text-slate-500 text-center">
+                VietMake Prototype v1.0
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Container -->
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+
+        <!-- Top Header Banner -->
+        <header class="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-8 no-print flex-shrink-0">
+            <div class="flex items-center gap-4">
+                <h2 id="header-title" class="text-xl font-bold text-slate-900 font-title">Dashboard Tổng quan</h2>
+            </div>
+            <!-- Profile Info -->
+            <div class="flex items-center gap-3">
+                <div class="text-right">
+                    <h4 class="text-sm font-semibold text-slate-900">Nguyễn Văn A</h4>
+                    <p class="text-xs text-slate-500">Quản trị viên (Admin)</p>
+                </div>
+                <div class="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center text-white text-lg font-semibold">
+                    A
+                </div>
+            </div>
+        </header>
+
+        <!-- Tabs Panels (Scrollable Content area) -->
+        <div class="flex-1 overflow-y-auto p-8">
+
+            <!-- TAB 1: DASHBOARD -->
+            <section id="panel-dashboard" class="space-y-8 tab-panel">
+                <!-- Metrics Summary Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <!-- Total/Delivering Card -->
+                    <div onclick="filterListByStatus('DELIVERING')" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between cursor-pointer hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                        <div class="space-y-1">
+                            <p class="text-sm font-semibold text-slate-500">Đang Vận Chuyển</p>
+                            <h3 id="count-delivering" class="text-3xl font-bold text-slate-900 font-title">0</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center text-amber-500 text-xl">
+                            <i class="fa-solid fa-truck-fast"></i>
+                        </div>
+                    </div>
+                    <!-- Success Card -->
+                    <div onclick="filterListByStatus('SUCCESS')" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between cursor-pointer hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                        <div class="space-y-1">
+                            <p class="text-sm font-semibold text-slate-500">Giao Thành Công</p>
+                            <h3 id="count-success" class="text-3xl font-bold text-slate-900 font-title">0</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-500 text-xl">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                    </div>
+                    <!-- Failed Card -->
+                    <div onclick="filterListByStatus('FAILED')" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between cursor-pointer hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                        <div class="space-y-1">
+                            <p class="text-sm font-semibold text-slate-500">Giao Thất Bại</p>
+                            <h3 id="count-failed" class="text-3xl font-bold text-slate-900 font-title">0</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-rose-50 rounded-xl flex items-center justify-center text-rose-500 text-xl">
+                            <i class="fa-solid fa-circle-xmark"></i>
+                        </div>
+                    </div>
+                    <!-- Returned Card -->
+                    <div onclick="filterListByStatus('RETURNED')" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between cursor-pointer hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                        <div class="space-y-1">
+                            <p class="text-sm font-semibold text-slate-500">Chờ Hoàn Hàng</p>
+                            <h3 id="count-returned" class="text-3xl font-bold text-slate-900 font-title">0</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center text-red-600 text-xl">
+                            <i class="fa-solid fa-arrow-rotate-left"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts & Alerts grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Shipping Trends Chart Card -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 lg:col-span-2 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-bold text-slate-900 font-title">Thống kê Vận chuyển Tuần này</h3>
+                            <span class="text-xs text-slate-500">Nhóm theo ngày tạo đơn (T2 - T6)</span>
+                        </div>
+                        <div class="h-72 w-full relative">
+                            <canvas id="shippingChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Alert / Urgent Action Card -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4 flex flex-col">
+                        <h3 class="text-lg font-bold text-slate-900 font-title">Cảnh báo Cần xử lý</h3>
+                        <div id="urgent-alerts-list" class="space-y-3 flex-1 overflow-y-auto max-h-72 pr-1">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- TAB 2: ORDER LIST -->
+            <section id="panel-order-list" class="space-y-6 tab-panel hidden">
+                <!-- Search & Filters -->
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col md:flex-row gap-4 items-center justify-between">
+                    <!-- Search Input -->
+                    <div class="relative w-full md:w-80">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" id="search-input" onkeyup="filterOrders()" placeholder="Tìm kiếm theo mã vận đơn, SĐT..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:bg-white transition-all">
+                    </div>
+                    <!-- Status Filter Dropdown -->
+                    <div class="flex items-center gap-2 w-full md:w-auto">
+                        <span class="text-sm font-semibold text-slate-500 whitespace-nowrap">Trạng thái:</span>
+                        <select id="status-filter" onchange="filterOrders()" class="bg-slate-50 border border-slate-200 rounded-lg text-sm px-3 py-2 focus:outline-none focus:border-blue-500 focus:bg-white transition-all">
+                            <option value="ALL">Tất cả</option>
+                            <option value="DELIVERING">Đang Vận Chuyển</option>
+                            <option value="SUCCESS">Giao Thành Công</option>
+                            <option value="FAILED">Giao Thất Bại</option>
+                            <option value="RETURNED">Chờ Hoàn Hàng</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Data Table Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-100">
+                                    <th class="py-4 px-6 text-sm font-bold text-slate-500 w-[160px]">Mã Đơn / Vận Đơn</th>
+                                    <th class="py-4 px-6 text-sm font-bold text-slate-500">Khách Hàng / Hàng Hoá</th>
+                                    <th class="py-4 px-6 text-sm font-bold text-slate-500 w-[180px] text-center">Trạng thái</th>
+                                    <th class="py-4 px-6 text-sm font-bold text-slate-500 w-[140px] text-right">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="order-table-body" class="divide-y divide-slate-100">
+                                <!-- Populated dynamically via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Pagination mock footer -->
+                    <div class="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-sm text-slate-500">
+                        <span id="pagination-text">Hiển thị 1 - 3 của 3 đơn</span>
+                        <div class="flex items-center gap-2">
+                            <button class="w-8 h-8 rounded border border-slate-200 bg-white flex items-center justify-center hover:bg-slate-50 transition text-slate-400 cursor-not-allowed"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+                            <button class="w-8 h-8 rounded border border-slate-200 bg-blue-600 text-white flex items-center justify-center font-bold">1</button>
+                            <button class="w-8 h-8 rounded border border-slate-200 bg-white flex items-center justify-center hover:bg-slate-50 transition text-slate-600"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- TAB 3: CREATE ORDER -->
+            <section id="panel-create-order" class="max-w-3xl mx-auto tab-panel hidden">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 space-y-6 relative overflow-hidden">
+                    <h3 class="text-xl font-bold text-slate-900 font-title border-b border-slate-100 pb-4">Tạo Đơn Vận Chuyển Mới</h3>
+                    
+                    <form id="create-order-form" onsubmit="submitNewOrder(event)" class="space-y-6">
+                        <!-- Receiver Info Section -->
+                        <div class="space-y-4">
+                            <h4 class="text-sm font-bold text-slate-400 uppercase tracking-wider">Thông tin người nhận</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- Name Input -->
+                                <div class="space-y-1">
+                                    <label class="text-sm font-semibold text-slate-700">Họ Tên <span class="text-red-500">*</span></label>
+                                    <input type="text" id="form-name" placeholder="Nhập họ và tên người nhận" class="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all">
+                                    <p id="error-name" class="text-xs text-red-500 hidden"><i class="fa-solid fa-circle-info mr-1"></i>Họ tên không được để trống</p>
+                                </div>
+                                <!-- Phone Input -->
+                                <div class="space-y-1">
+                                    <label class="text-sm font-semibold text-slate-700">Số Điện Thoại <span class="text-red-500">*</span></label>
+                                    <input type="text" id="form-phone" placeholder="Nhập số điện thoại (10 số)" class="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all">
+                                    <p id="error-phone" class="text-xs text-red-500 hidden"><i class="fa-solid fa-circle-info mr-1"></i>Số điện thoại phải đủ 10 chữ số</p>
+                                </div>
+                            </div>
+                            <!-- Address Input -->
+                            <div class="space-y-1">
+                                <label class="text-sm font-semibold text-slate-700">Địa chỉ <span class="text-red-500">*</span></label>
+                                <input type="text" id="form-address" placeholder="Nhập địa chỉ chi tiết" class="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all">
+                                <p id="error-address" class="text-xs text-red-500 hidden"><i class="fa-solid fa-circle-info mr-1"></i>Địa chỉ không được để trống</p>
+                            </div>
+                        </div>
+
+                        <!-- Product Info Section -->
+                        <div class="space-y-4 pt-4 border-t border-slate-100">
+                            <h4 class="text-sm font-bold text-slate-400 uppercase tracking-wider">Thông tin hàng hoá</h4>
+                            <div class="space-y-1">
+                                <label class="text-sm font-semibold text-slate-700">Tên SP / Hàng hóa <span class="text-red-500">*</span></label>
+                                <input type="text" id="form-product" placeholder="Nhập tên sản phẩm" class="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all">
+                                <p id="error-product" class="text-xs text-red-500 hidden"><i class="fa-solid fa-circle-info mr-1"></i>Tên sản phẩm không được để trống</p>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- Weight -->
+                                <div class="space-y-1">
+                                    <label class="text-sm font-semibold text-slate-700">Khối lượng (kg) <span class="text-red-500">*</span></label>
+                                    <input type="number" step="0.1" id="form-weight" placeholder="1.5" class="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all">
+                                    <p id="error-weight" class="text-xs text-red-500 hidden"><i class="fa-solid fa-circle-info mr-1"></i>Khối lượng phải lớn hơn 0 kg</p>
+                                </div>
+                                <!-- COD -->
+                                <div class="space-y-1">
+                                    <label class="text-sm font-semibold text-slate-700">Thu Hộ (COD)</label>
+                                    <div class="relative">
+                                        <input type="number" id="form-cod" placeholder="0" class="w-full pl-4 pr-10 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all">
+                                        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">đ</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Documents Section -->
+                        <div class="space-y-4 pt-4 border-t border-slate-100">
+                            <h4 class="text-sm font-bold text-slate-400 uppercase tracking-wider">Tài liệu đính kèm</h4>
+                            <div class="space-y-1">
+                                <label class="text-sm font-semibold text-slate-700">File CO/CQ</label>
+                                <div id="upload-box" class="border-2 border-dashed border-slate-200 hover:border-blue-500 hover:bg-slate-50 rounded-xl p-6 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-2">
+                                    <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-400"></i>
+                                    <span id="upload-label" class="text-sm text-slate-600 font-semibold">file_co_cq.pdf</span>
+                                    <span class="text-xs text-slate-400">Hỗ trợ định dạng PDF, PNG, JPG (Tối đa 5MB)</span>
+                                </div>
+                                <p id="error-upload" class="text-xs text-red-500 hidden"><i class="fa-solid fa-circle-info mr-1"></i>Dung lượng file vượt quá giới hạn 5MB</p>
+                            </div>
+                        </div>
+
+                        <!-- Global API Error Banner -->
+                        <div id="form-global-error" class="hidden flex items-center justify-between p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 gap-3">
+                            <div class="flex items-center gap-3">
+                                <i class="fa-solid fa-circle-exclamation text-xl"></i>
+                                <span class="text-sm font-medium">LỖI KẾT NỐI: Không thể kết nối tới API 247Express. Đường truyền gián đoạn.</span>
+                            </div>
+                            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-1.5 px-4 rounded transition">Thử Lại</button>
+                        </div>
+
+                        <!-- Form Actions Footer -->
+                        <div class="flex items-center justify-end gap-3 pt-6 border-t border-slate-100">
+                            <button type="button" onclick="switchTab('order-list')" class="px-6 py-2.5 border border-slate-200 hover:bg-slate-50 text-slate-600 font-semibold rounded-lg text-sm transition">Huỷ Bỏ</button>
+                            <button type="submit" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-sm shadow-lg shadow-blue-600/10 transition">Xác Nhận Tạo</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+
+            <!-- TAB 4: ORDER DETAILS -->
+            <section id="panel-order-details" class="max-w-5xl mx-auto tab-panel hidden space-y-6">
+                <!-- Delivery Failure Warning Action Banner (Edge Case) -->
+                <div id="failed-action-banner" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-amber-500 rounded-full flex items-center justify-center text-white text-xl flex-shrink-0">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <div class="space-y-1">
+                            <h4 class="font-bold text-amber-900">CẢNH BÁO: Đơn hàng giao không thành công lần 1.</h4>
+                            <p class="text-sm text-amber-800">Lý do từ bưu tá: "Khách hàng thuê bao không liên lạc được khi giao hàng".</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="resolveAction('DELIVERING')" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg text-sm shadow-md transition">Yêu cầu Giao Lại (lần 2)</button>
+                        <button onclick="resolveAction('RETURNED')" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-lg text-sm shadow-md transition">Xác nhận Hoàn Hàng</button>
+                    </div>
+                </div>
+
+                <!-- Order Header Block -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <h3 id="details-code" class="text-xl font-bold text-slate-900 font-title">CHI TIẾT ĐƠN HÀNG: #247-00123</h3>
+                        <!-- Status Badge -->
+                        <span id="details-badge" class="px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-500">Đang Giao</span>
+                    </div>
+                    <button onclick="switchTab('order-list')" class="text-slate-400 hover:text-slate-600 text-lg transition"><i class="fa-solid fa-circle-xmark"></i></button>
+                </div>
+
+                <!-- Summary Info Card -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 grid grid-cols-1 md:grid-cols-4 gap-6 divide-y md:divide-y-0 md:divide-x divide-slate-100">
+                    <div class="space-y-1">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Khách Hàng</p>
+                        <h4 id="details-name" class="font-semibold text-slate-900">Nguyen Van A</h4>
+                    </div>
+                    <div class="space-y-1 pt-4 md:pt-0 md:pl-6">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">SĐT Liên Lạc</p>
+                        <h4 id="details-phone" class="font-semibold text-slate-900">0901234567</h4>
+                    </div>
+                    <div class="space-y-1 pt-4 md:pt-0 md:pl-6">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Hàng Hoá</p>
+                        <h4 id="details-product" class="font-semibold text-slate-900">Macbook Pro M3</h4>
+                    </div>
+                    <div class="space-y-1 pt-4 md:pt-0 md:pl-6">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Thu Hộ (COD)</p>
+                        <h4 id="details-cod" class="font-semibold text-slate-900">0 đ</h4>
+                    </div>
+                </div>
+
+                <!-- Left Column (Tracking History) and Right Column (Notification Log) -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    
+                    <!-- Tracking History -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 md:col-span-2 space-y-6">
+                        <h4 class="text-lg font-bold text-slate-900 font-title border-b border-slate-100 pb-3">Lịch Sử Tracking (Từ 247Express)</h4>
+                        
+                        <!-- Timeline list -->
+                        <div id="timeline-list" class="flex flex-col">
+                            <!-- Node 1 -->
+                            <div class="flex items-stretch">
+                                <div class="w-10 flex flex-col items-center flex-shrink-0">
+                                    <div class="w-6 h-6 rounded-full bg-emerald-50 border-2 border-emerald-500 flex items-center justify-center text-emerald-500 text-[10px] z-10">
+                                        <i class="fa-solid fa-check"></i>
+                                    </div>
+                                    <div class="w-[2px] bg-emerald-500 flex-1"></div>
+                                </div>
+                                <div class="pb-6 pl-4 flex-1">
+                                    <p class="text-xs font-semibold text-slate-400">10:00</p>
+                                    <h5 class="text-sm font-semibold text-slate-900">Tạo đơn thành công</h5>
+                                    <p class="text-xs text-slate-500 mt-1">Mã vận đơn: 247XYZ123</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Node 2 -->
+                            <div class="flex items-stretch">
+                                <div class="w-10 flex flex-col items-center flex-shrink-0">
+                                    <div id="node-2-icon" class="w-6 h-6 rounded-full bg-emerald-50 border-2 border-emerald-500 flex items-center justify-center text-emerald-500 text-[10px] z-10">
+                                        <i class="fa-solid fa-check"></i>
+                                    </div>
+                                    <div id="node-2-line" class="w-[2px] bg-slate-200 flex-1"></div>
+                                </div>
+                                <div class="pb-6 pl-4 flex-1">
+                                    <p class="text-xs font-semibold text-slate-400">14:00</p>
+                                    <h5 class="text-sm font-semibold text-slate-900">Bưu tá đã lấy hàng</h5>
+                                </div>
+                            </div>
+                            
+                            <!-- Node 3 -->
+                            <div class="flex items-stretch">
+                                <div class="w-10 flex flex-col items-center flex-shrink-0">
+                                    <div id="node-3-icon" class="w-6 h-6 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center text-slate-300 text-[10px] z-10">
+                                        <i class="fa-solid fa-ellipsis"></i>
+                                    </div>
+                                </div>
+                                <div class="pb-1 pl-4 flex-1">
+                                    <p id="node-3-time" class="text-xs font-semibold text-slate-400">...</p>
+                                    <h5 id="node-3-title" class="text-sm font-semibold text-slate-500">Đang giao hàng (Chờ cập nhật)</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notification Log -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-6">
+                        <h4 class="text-lg font-bold text-slate-900 font-title border-b border-slate-100 pb-3">Lịch Sử Thông Báo</h4>
+                        
+                        <div id="notifications-list" class="space-y-4">
+                            <!-- SMS -->
+                            <div class="flex items-start gap-3">
+                                <div class="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center text-sm flex-shrink-0">
+                                    <i class="fa-solid fa-comment-sms"></i>
+                                </div>
+                                <div class="space-y-1">
+                                    <p class="text-xs text-slate-400">10:01</p>
+                                    <p class="text-xs text-slate-700"><span class="font-bold text-emerald-500">[OK]</span> Gửi SMS Brandname thành công cho Khách hàng.</p>
+                                </div>
+                            </div>
+                            <!-- Telegram -->
+                            <div class="flex items-start gap-3">
+                                <div class="w-8 h-8 bg-blue-50 text-blue-500 rounded-lg flex items-center justify-center text-sm flex-shrink-0">
+                                    <i class="fa-brands fa-telegram"></i>
+                                </div>
+                                <div class="space-y-1">
+                                    <p class="text-xs text-slate-400">14:01</p>
+                                    <p class="text-xs text-slate-700"><span class="font-bold text-emerald-500">[OK]</span> Bắn cảnh báo Telegram tới group Sales thành công.</p>
+                                </div>
+                            </div>
+                            <!-- Failed SMS notification log (populated in details state errors) -->
+                            <div id="failed-notif-row" class="hidden flex items-start gap-3">
+                                <div class="w-8 h-8 bg-rose-50 text-rose-500 rounded-lg flex items-center justify-center text-sm flex-shrink-0">
+                                    <i class="fa-solid fa-circle-exclamation"></i>
+                                </div>
+                                <div class="space-y-1 flex-1 min-w-0">
+                                    <p class="text-xs text-slate-400">16:02</p>
+                                    <p class="text-xs text-rose-600 font-medium">[LỖI] Gửi SMS Brandname thất bại (Nhà mạng lỗi).</p>
+                                    <button onclick="resendNotification()" class="text-xs text-blue-600 hover:text-blue-700 font-semibold underline flex items-center gap-1 mt-1">
+                                        <span id="resend-text">Gửi lại</span>
+                                        <span id="resend-spinner" class="inline-block w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin hidden"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Buttons -->
+                <div class="flex items-center justify-between p-6 bg-white border border-slate-100 rounded-2xl shadow-sm">
+                    <button onclick="printWarehouseReceipt()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-sm shadow-md transition flex items-center gap-2">
+                        <i class="fa-solid fa-print"></i>
+                        <span>In Phiếu Xuất Kho</span>
+                    </button>
+                    <button onclick="switchTab('order-list')" class="px-6 py-2.5 border border-slate-200 hover:bg-slate-50 text-slate-600 font-semibold rounded-lg text-sm transition">Quay Lại</button>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- PRINT LAYOUT (Hidden on screen via Tailwind classes, visible only on print) -->
+    <div id="print-area" class="hidden p-8 space-y-6 text-black bg-white">
+        <div class="flex items-center justify-between border-b-2 border-black pb-4">
+            <div>
+                <h1 class="text-2xl font-bold font-title">PHIẾU XUẤT KHO KIÊM GIAO HÀNG</h1>
+                <p class="text-sm mt-1">Mã đơn hàng: <span id="print-order-code" class="font-bold">#247-00123</span></p>
+            </div>
+            <div class="text-right">
+                <h2 class="text-lg font-bold">CÔNG TY VIETMAKE</h2>
+                <p class="text-xs">Đường số 10, Hiệp Bình Chánh, Thủ Đức, HCM</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-8 text-sm pt-4">
+            <div class="space-y-1">
+                <h3 class="font-bold uppercase mb-2">Thông tin người nhận</h3>
+                <p>Khách hàng: <span id="print-receiver-name">Nguyen Van A</span></p>
+                <p>Điện thoại: <span id="print-receiver-phone">0901234567</span></p>
+                <p>Địa chỉ: <span id="print-receiver-address">Đường số 10, Hiệp Bình Chánh, Thủ Đức, HCM</span></p>
+            </div>
+            <div class="space-y-1">
+                <h3 class="font-bold uppercase mb-2">Đơn vị vận chuyển</h3>
+                <p>Đơn vị: <strong>247Express</strong></p>
+                <p>Mã vận đơn: <span id="print-tracking-number">247XYZ123</span></p>
+                <p>Trạng thái: <span id="print-status">Đang Vận Chuyển</span></p>
+            </div>
+        </div>
+
+        <table class="w-full text-left border-collapse border border-black mt-6 text-sm">
+            <thead>
+                <tr class="bg-slate-100">
+                    <th class="border border-black p-2">Tên sản phẩm / Hàng hóa</th>
+                    <th class="border border-black p-2 text-center w-24">Khối lượng</th>
+                    <th class="border border-black p-2 text-right w-36">Thu Hộ (COD)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td id="print-product-name" class="border border-black p-2">Macbook Pro M3</td>
+                    <td id="print-weight" class="border border-black p-2 text-center">1.5 kg</td>
+                    <td id="print-cod" class="border border-black p-2 text-right">0 đ</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="grid grid-cols-2 gap-8 text-center pt-16 text-sm">
+            <div>
+                <p class="font-bold">Người nhận hàng</p>
+                <p class="text-xs text-slate-400 mt-12">(Ký và ghi rõ họ tên)</p>
+            </div>
+            <div>
+                <p class="font-bold">Thủ kho xuất</p>
+                <p class="text-xs text-slate-400 mt-12">(Ký và ghi rõ họ tên)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Javascript Logical Section -->
+    <script>
+        // MOCK DATABASE
+        let orders = [
+            { id: "247-00123", tracking: "247XYZ123", name: "Nguyen Van A", phone: "0901234567", address: "Số 10 Đường số 4, Hiệp Bình Chánh, Thủ Đức, TP. Hồ Chí Minh", product: "Macbook Pro M3", weight: 1.5, cod: 0, status: "DELIVERING", date: "2026-06-29" },
+            { id: "247-00124", tracking: "247ABC789", name: "Tran Thi B", phone: "0987654321", address: "125 Hai Bà Trưng, Quận 1, TP. Hồ Chí Minh", product: "iPhone 15 Pro", weight: 0.3, cod: 12000000, status: "SUCCESS", date: "2026-06-30" },
+            { id: "247-00125", tracking: "247KLO456", name: "Le Van C", phone: "0933444555", address: "36 Hoàng Hoa Thám, Quận Tân Bình, TP. Hồ Chí Minh", product: "Macbook Air M2", weight: 1.3, cod: 15000000, status: "FAILED", date: "2026-07-01" },
+            { id: "247-00126", tracking: "247XYZ888", name: "Phạm Văn D", phone: "0909090909", address: "420 Trần Hưng Đạo, Quận 5, TP. Hồ Chí Minh", product: "iPad Pro M4", weight: 0.8, cod: 0, status: "DELIVERING", date: "2026-06-29" },
+            { id: "247-00127", tracking: "247XYZ999", name: "Hoàng Thị E", phone: "0918118118", address: "78 Nguyễn Trãi, Quận 5, TP. Hồ Chí Minh", product: "AirPods Pro 2", weight: 0.1, cod: 3500000, status: "SUCCESS", date: "2026-06-30" },
+            { id: "247-00128", tracking: "247XYZ777", name: "Đỗ Văn F", phone: "0945445445", address: "12 Cộng Hòa, Quận Tân Bình, TP. Hồ Chí Minh", product: "Bàn phím cơ Keychron", weight: 1.2, cod: 2500000, status: "DELIVERING", date: "2026-07-01" },
+            { id: "247-00129", tracking: "247XYZ666", name: "Vũ Thị G", phone: "0967667667", address: "99 Cách Mạng Tháng 8, Quận 3, TP. Hồ Chí Minh", product: "Chuột Logitech MX Master 3S", weight: 0.2, cod: 0, status: "SUCCESS", date: "2026-07-02" },
+            { id: "247-00130", tracking: "247XYZ555", name: "Ngô Văn H", phone: "0978778778", address: "15 Lê Lợi, Quận 1, TP. Hồ Chí Minh", product: "Màn hình Dell UltraSharp", weight: 6.5, cod: 9800000, status: "DELIVERING", date: "2026-07-02" },
+            { id: "247-00131", tracking: "247XYZ444", name: "Bùi Văn I", phone: "0989889889", address: "250 Lê Hồng Phong, Quận 10, TP. Hồ Chí Minh", product: "Loa Marshall Stanmore", weight: 4.5, cod: 7500000, status: "DELIVERING", date: "2026-07-03" }
+        ];
+
+        // Active Order Selection for Details Tab
+        let activeOrderId = "247-00123";
+        let shippingChart = null;
+
+        // Initialize App on load
+        window.addEventListener('DOMContentLoaded', () => {
+            updateDashboardMetrics();
+            initChart();
+            renderOrderTable(orders);
+            switchTab('dashboard');
+        });
+
+        // Tab Navigation switching logic
+        function switchTab(tabId) {
+            // Hide all tab panels
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+            // Remove active style from all sidebar buttons
+            document.querySelectorAll('aside nav button').forEach(b => b.classList.remove('nav-active'));
+
+            // Show target panel
+            document.getElementById(`panel-${tabId}`).classList.remove('hidden');
+            // Add active styling to nav button
+            const navBtn = document.getElementById(`nav-${tabId}`);
+            if (navBtn) navBtn.classList.add('nav-active');
+
+            // Update Header Title
+            const titles = {
+                'dashboard': 'Dashboard Tổng quan',
+                'order-list': 'Quản lý Danh sách Đơn hàng',
+                'create-order': 'Tạo Đơn Vận Chuyển Mới',
+                'order-details': 'Chi tiết Đơn hàng & Tracking'
+            };
+            document.getElementById('header-title').innerText = titles[tabId];
+
+            if (tabId === 'dashboard') {
+                updateDashboardMetrics();
+                if (shippingChart) {
+                    shippingChart.destroy();
+                    initChart();
+                }
+            } else if (tabId === 'order-details') {
+                renderOrderDetails();
+            }
+        }
+
+        // Aggregate count of orders by status
+        function updateDashboardMetrics() {
+            const statusCounts = { DELIVERING: 0, SUCCESS: 0, FAILED: 0, RETURNED: 0 };
+            orders.forEach(o => {
+                if (statusCounts[o.status] !== undefined) {
+                    statusCounts[o.status]++;
+                }
+            });
+
+            document.getElementById('count-delivering').innerText = statusCounts.DELIVERING;
+            document.getElementById('count-success').innerText = statusCounts.SUCCESS;
+            document.getElementById('count-failed').innerText = statusCounts.FAILED;
+            document.getElementById('count-returned').innerText = statusCounts.RETURNED;
+
+            // Render Urgent Alerts List
+            const alertList = document.getElementById('urgent-alerts-list');
+            alertList.innerHTML = '';
+            
+            const errorOrders = orders.filter(o => o.status === 'FAILED' || o.status === 'RETURNED');
+            if (errorOrders.length === 0) {
+                alertList.innerHTML = `
+                    <div class="text-center py-8 text-slate-400">
+                        <i class="fa-solid fa-shield-check text-4xl mb-2 text-emerald-500"></i>
+                        <p class="text-sm">Không có đơn hàng nào cần xử lý khẩn cấp.</p>
+                    </div>`;
+            } else {
+                errorOrders.forEach(o => {
+                    const icon = o.status === 'FAILED' ? 'fa-circle-xmark text-rose-500' : 'fa-arrow-rotate-left text-red-600';
+                    const label = o.status === 'FAILED' ? 'Giao Thất Bại' : 'Chờ Hoàn Hàng';
+                    const colorClass = o.status === 'FAILED' ? 'bg-rose-50' : 'bg-red-50';
+
+                    alertList.innerHTML += `
+                        <div onclick="openOrderDetails('${o.id}')" class="p-3 border border-slate-100 rounded-xl hover:bg-slate-50 transition cursor-pointer flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <span class="w-8 h-8 rounded-lg flex items-center justify-center text-sm ${colorClass}">
+                                    <i class="fa-solid ${icon}"></i>
+                                </span>
+                                <div>
+                                    <h5 class="text-xs font-bold text-slate-900">${o.id} - ${o.name}</h5>
+                                    <p class="text-[10px] text-slate-500">${o.product} | ${label}</p>
+                                </div>
+                            </div>
+                            <span class="text-xs font-semibold text-blue-600 hover:underline">Xử lý <i class="fa-solid fa-chevron-right text-[10px]"></i></span>
+                        </div>`;
+                });
+            }
+        }
+
+        // Initialize Chart.js Bar Chart
+        function initChart() {
+            // Group orders by date (Monday to Friday) and status
+            const days = ["2026-06-29", "2026-06-30", "2026-07-01", "2026-07-02", "2026-07-03"];
+            const successData = [0, 0, 0, 0, 0];
+            const deliveringData = [0, 0, 0, 0, 0];
+            const failedData = [0, 0, 0, 0, 0];
+
+            orders.forEach(o => {
+                const dayIndex = days.indexOf(o.date);
+                if (dayIndex !== -1) {
+                    if (o.status === 'SUCCESS') successData[dayIndex]++;
+                    else if (o.status === 'DELIVERING') deliveringData[dayIndex]++;
+                    else if (o.status === 'FAILED' || o.status === 'RETURNED') failedData[dayIndex]++;
+                }
+            });
+
+            const ctx = document.getElementById('shippingChart').getContext('2d');
+            shippingChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6'],
+                    datasets: [
+                        { label: 'Giao thành công', data: successData, backgroundColor: '#00b894', borderRadius: 4 },
+                        { label: 'Đang vận chuyển', data: deliveringData, backgroundColor: '#f59e0b', borderRadius: 4 },
+                        { label: 'Đơn gặp sự cố (Hoàn/Lỗi)', data: failedData, backgroundColor: '#ef4444', borderRadius: 4 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'top' }
+                    }
+                }
+            });
+        }
+
+        // Format Status Badge for HTML representation
+        function getStatusBadgeHTML(status) {
+            const styles = {
+                DELIVERING: { text: "Đang Giao", bg: "bg-amber-50 text-amber-500", dot: "bg-amber-500 pulse-orange" },
+                SUCCESS: { text: "Thành Công", bg: "bg-emerald-50 text-emerald-500", dot: "bg-emerald-500" },
+                FAILED: { text: "Thất Bại", bg: "bg-rose-50 text-rose-500", dot: "bg-rose-500" },
+                RETURNED: { text: "Hoàn Hàng", bg: "bg-red-50 text-red-600", dot: "bg-red-600" }
+            };
+            const s = styles[status] || styles.DELIVERING;
+            return `
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${s.bg}">
+                    <span class="w-1.5 h-1.5 rounded-full ${s.dot}"></span>
+                    ${s.text}
+                </span>`;
+        }
+
+        // Render rows of the Order Data Table
+        function renderOrderTable(dataList) {
+            const body = document.getElementById('order-table-body');
+            body.innerHTML = '';
+
+            if (dataList.length === 0) {
+                body.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="py-12 px-6 text-center text-slate-400">
+                            <i class="fa-solid fa-magnifying-glass text-4xl mb-2"></i>
+                            <p class="text-sm">Không tìm thấy đơn hàng nào phù hợp.</p>
+                        </td>
+                    </tr>`;
+                document.getElementById('pagination-text').innerText = "Hiển thị 0 - 0 của 0 đơn";
+                return;
+            }
+
+            dataList.forEach(o => {
+                body.innerHTML += `
+                    <tr class="hover:bg-slate-50/50 transition">
+                        <td class="py-4 px-6">
+                            <span class="text-sm font-semibold text-slate-900">${o.id}</span>
+                            <span class="block text-xs text-slate-400">${o.tracking}</span>
+                        </td>
+                        <td class="py-4 px-6">
+                            <span class="text-sm font-semibold text-slate-900">${o.name}</span>
+                            <span class="block text-xs text-slate-500">${o.product} (${o.weight}kg)</span>
+                        </td>
+                        <td class="py-4 px-6 text-center">
+                            ${getStatusBadgeHTML(o.status)}
+                        </td>
+                        <td class="py-4 px-6 text-right space-x-2">
+                            <button onclick="openOrderDetails('${o.id}')" class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-700 transition">
+                                <i class="fa-solid fa-eye"></i> Xem
+                            </button>
+                            <button onclick="directPrintOrder('${o.id}')" class="inline-flex items-center gap-1 text-xs font-bold text-slate-600 hover:text-slate-950 transition ml-3">
+                                <i class="fa-solid fa-print"></i> In
+                            </button>
+                        </td>
+                    </tr>`;
+            });
+
+            document.getElementById('pagination-text').innerText = `Hiển thị 1 - ${dataList.length} của ${dataList.length} đơn`;
+        }
+
+        // Live Real-time filtering logic
+        function filterOrders() {
+            const query = document.getElementById('search-input').value.toLowerCase().trim();
+            const statusFilter = document.getElementById('status-filter').value;
+
+            const filtered = orders.filter(o => {
+                const matchesQuery = o.id.toLowerCase().includes(query) || 
+                                     o.tracking.toLowerCase().includes(query) || 
+                                     o.name.toLowerCase().includes(query) || 
+                                     o.phone.toLowerCase().includes(query);
+                
+                const matchesStatus = (statusFilter === 'ALL') || 
+                                      (statusFilter === o.status) || 
+                                      (statusFilter === 'FAILED' && o.status === 'RETURNED'); // group failed and returned filter
+
+                return matchesQuery && matchesStatus;
+            });
+
+            renderOrderTable(filtered);
+        }
+
+        // Trigger switch tab with filter pre-selected from metric card click
+        function filterListByStatus(status) {
+            document.getElementById('status-filter').value = status;
+            switchTab('order-list');
+            filterOrders();
+        }
+
+        // Direct print warehouse receipt from table actions
+        function directPrintOrder(orderId) {
+            activeOrderId = orderId;
+            const o = orders.find(ord => ord.id === orderId);
+            if (o) {
+                populatePrintLayout(o);
+                window.print();
+            }
+        }
+
+        // Open specific order detailed views
+        function openOrderDetails(orderId) {
+            activeOrderId = orderId;
+            
+            // Check details state error checkbox based on clicked status
+            const o = orders.find(ord => ord.id === orderId);
+            const checkbox = document.getElementById('toggle-details-error');
+            if (o) {
+                if (o.status === 'FAILED' || o.status === 'RETURNED') {
+                    checkbox.checked = true;
+                } else {
+                    checkbox.checked = false;
+                }
+            }
+
+            switchTab('order-details');
+        }
+
+        // Sync visual warning banners and text on details change
+        function updateDetailsState() {
+            if (document.getElementById('panel-order-details').classList.contains('hidden')) return;
+            renderOrderDetails();
+        }
+
+        // Render detailed order info and timeline checks
+        function renderOrderDetails() {
+            const o = orders.find(ord => ord.id === activeOrderId);
+            if (!o) return;
+
+            const isErrorState = document.getElementById('toggle-details-error').checked;
+
+            // Fill header status details
+            document.getElementById('details-code').innerText = `CHI TIẾT ĐƠN HÀNG: #${o.id}`;
+            
+            // Sync status variables in database if toggled on-the-fly
+            if (isErrorState && o.status !== 'FAILED' && o.status !== 'RETURNED') {
+                o.status = 'FAILED';
+            } else if (!isErrorState && (o.status === 'FAILED' || o.status === 'RETURNED')) {
+                o.status = 'DELIVERING';
+            }
+
+            const badge = document.getElementById('details-badge');
+            badge.outerHTML = getStatusBadgeHTML(o.status);
+
+            // Fill summary fields
+            document.getElementById('details-name').innerText = o.name;
+            document.getElementById('details-phone').innerText = o.phone;
+            document.getElementById('details-product').innerText = o.product;
+            document.getElementById('details-cod').innerText = o.cod.toLocaleString('vi-VN') + " đ";
+
+            // Render Timeline List and Actions Banner
+            const banner = document.getElementById('failed-action-banner');
+            const node2Icon = document.getElementById('node-2-icon');
+            const node2Line = document.getElementById('node-2-line');
+            const node3Icon = document.getElementById('node-3-icon');
+            const node3Time = document.getElementById('node-3-time');
+            const node3Title = document.getElementById('node-3-title');
+            const failedNotifRow = document.getElementById('failed-notif-row');
+
+            if (o.status === 'FAILED' || o.status === 'RETURNED') {
+                // Show failed actions banner on top
+                banner.classList.remove('hidden');
+                
+                // Timeline Step 2 line points green but icon is ok
+                node2Icon.innerHTML = `<i class="fa-solid fa-check"></i>`;
+                node2Icon.className = "w-6 h-6 rounded-full bg-emerald-50 border-2 border-emerald-500 flex items-center justify-center text-emerald-500 text-[10px] z-10";
+                node2Line.className = "w-[2px] bg-emerald-500 flex-1";
+
+                // Timeline Step 3 is a failure cross
+                node3Icon.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
+                node3Icon.className = "w-6 h-6 rounded-full bg-rose-50 border-2 border-rose-500 flex items-center justify-center text-rose-500 text-[10px] z-10";
+                node3Time.innerText = "16:00";
+                node3Time.className = "text-xs font-semibold text-rose-500";
+                node3Title.innerText = "Giao hàng thất bại (Khách không nghe máy)";
+                node3Title.className = "text-sm font-semibold text-rose-500";
+
+                // Show notification error
+                failedNotifRow.classList.remove('hidden');
+
+                // Update banner details
+                if (o.status === 'RETURNED') {
+                    banner.innerHTML = `
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center text-white text-xl flex-shrink-0">
+                                <i class="fa-solid fa-arrow-rotate-left"></i>
+                            </div>
+                            <div class="space-y-1">
+                                <h4 class="font-bold text-red-950">TRẠNG THÁI: Chờ hoàn hàng về kho.</h4>
+                                <p class="text-sm text-red-800">Đã gửi thông báo cho Ban cung ứng nhận hàng hoàn trả.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button onclick="resolveAction('DELIVERING')" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-lg text-sm transition">Chuyển lại Đang Giao</button>
+                        </div>`;
+                } else {
+                    banner.innerHTML = `
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 bg-amber-500 rounded-full flex items-center justify-center text-white text-xl flex-shrink-0">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                            </div>
+                            <div class="space-y-1">
+                                <h4 class="font-bold text-amber-900">CẢNH BÁO: Đơn hàng giao không thành công lần 1.</h4>
+                                <p class="text-sm text-amber-800">Lý do từ bưu tá: "Khách hàng thuê bao không liên lạc được khi giao hàng".</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button onclick="resolveAction('DELIVERING')" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg text-sm shadow-md transition">Yêu cầu Giao Lại (lần 2)</button>
+                            <button onclick="resolveAction('RETURNED')" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-lg text-sm shadow-md transition">Xác nhận Hoàn Hàng</button>
+                        </div>`;
+                }
+            } else {
+                // Happy delivery path or delivered success path
+                banner.classList.add('hidden');
+                failedNotifRow.classList.add('hidden');
+
+                if (o.status === 'SUCCESS') {
+                    // All checkpoints green
+                    node2Icon.innerHTML = `<i class="fa-solid fa-check"></i>`;
+                    node2Icon.className = "w-6 h-6 rounded-full bg-emerald-50 border-2 border-emerald-500 flex items-center justify-center text-emerald-500 text-[10px] z-10";
+                    node2Line.className = "w-[2px] bg-emerald-500 flex-1";
+
+                    node3Icon.innerHTML = `<i class="fa-solid fa-check"></i>`;
+                    node3Icon.className = "w-6 h-6 rounded-full bg-emerald-50 border-2 border-emerald-500 flex items-center justify-center text-emerald-500 text-[10px] z-10";
+                    node3Time.innerText = "18:00";
+                    node3Time.className = "text-xs font-semibold text-slate-400";
+                    node3Title.innerText = "Giao hàng thành công (Đã ký nhận)";
+                    node3Title.className = "text-sm font-semibold text-slate-900";
+                } else {
+                    // Delivering: Step 3 is waiting
+                    node2Icon.innerHTML = `<i class="fa-solid fa-check"></i>`;
+                    node2Icon.className = "w-6 h-6 rounded-full bg-emerald-50 border-2 border-emerald-500 flex items-center justify-center text-emerald-500 text-[10px] z-10";
+                    node2Line.className = "w-[2px] bg-slate-200 flex-1";
+
+                    node3Icon.innerHTML = `<i class="fa-solid fa-ellipsis"></i>`;
+                    node3Icon.className = "w-6 h-6 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center text-slate-300 text-[10px] z-10";
+                    node3Time.innerText = "...";
+                    node3Time.className = "text-xs font-semibold text-slate-400";
+                    node3Title.innerText = "Đang giao hàng (Chờ cập nhật)";
+                    node3Title.className = "text-sm font-semibold text-slate-500";
+                }
+            }
+        }
+
+        // Handle Quick Action resolve (Yêu cầu Giao lại / Xác nhận Hoàn hàng)
+        function resolveAction(newStatus) {
+            const o = orders.find(ord => ord.id === activeOrderId);
+            if (o) {
+                o.status = newStatus;
+                
+                // Uncheck error state checkbox if moving to delivering
+                if (newStatus === 'DELIVERING') {
+                    document.getElementById('toggle-details-error').checked = false;
+                } else if (newStatus === 'RETURNED') {
+                    document.getElementById('toggle-details-error').checked = true;
+                }
+
+                renderOrderDetails();
+                updateDashboardMetrics();
+            }
+        }
+
+        // Retry / Resend SMS notification with visual spinners
+        function resendNotification() {
+            const text = document.getElementById('resend-text');
+            const spinner = document.getElementById('resend-spinner');
+
+            text.innerText = "Đang gửi...";
+            spinner.classList.remove('hidden');
+
+            setTimeout(() => {
+                text.innerText = "Gửi lại";
+                spinner.classList.add('hidden');
+                
+                const failedRow = document.getElementById('failed-notif-row');
+                failedRow.innerHTML = `
+                    <div class="w-8 h-8 bg-emerald-50 text-emerald-500 rounded-lg flex items-center justify-center text-sm flex-shrink-0">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-xs text-slate-400">Vừa xong</p>
+                        <p class="text-xs text-slate-700"><span class="font-bold text-emerald-500">[OK]</span> Gửi SMS Brandname thành công (Đã gửi thủ công).</p>
+                    </div>`;
+            }, 1500);
+        }
+
+        // Populate HTML layout with order variables before printing
+        function populatePrintLayout(o) {
+            document.getElementById('print-order-code').innerText = `#${o.id}`;
+            document.getElementById('print-receiver-name').innerText = o.name;
+            document.getElementById('print-receiver-phone').innerText = o.phone;
+            document.getElementById('print-receiver-address').innerText = o.address;
+            document.getElementById('print-tracking-number').innerText = o.tracking;
+            document.getElementById('print-product-name').innerText = o.product;
+            document.getElementById('print-weight').innerText = `${o.weight} kg`;
+            document.getElementById('print-cod').innerText = o.cod.toLocaleString('vi-VN') + " đ";
+            
+            const statusLabels = { DELIVERING: "Đang Vận Chuyển", SUCCESS: "Thành Công", FAILED: "Thất Bại", RETURNED: "Hoàn Hàng" };
+            document.getElementById('print-status').innerText = statusLabels[o.status] || "Đang Vận Chuyển";
+        }
+
+        // Print warehouse receipt trigger
+        function printWarehouseReceipt() {
+            const o = orders.find(ord => ord.id === activeOrderId);
+            if (o) {
+                populatePrintLayout(o);
+                window.print();
+            }
+        }
+
+        // Create new order submission logic
+        function submitNewOrder(event) {
+            event.preventDefault();
+
+            // Clear previous errors
+            document.getElementById('error-name').classList.add('hidden');
+            document.getElementById('error-phone').classList.add('hidden');
+            document.getElementById('error-address').classList.add('hidden');
+            document.getElementById('error-product').classList.add('hidden');
+            document.getElementById('error-weight').classList.add('hidden');
+            document.getElementById('form-global-error').classList.add('hidden');
+
+            const name = document.getElementById('form-name').value.trim();
+            const phone = document.getElementById('form-phone').value.trim();
+            const address = document.getElementById('form-address').value.trim();
+            const product = document.getElementById('form-product').value.trim();
+            const weightVal = document.getElementById('form-weight').value;
+            const weight = parseFloat(weightVal);
+            const codVal = document.getElementById('form-cod').value;
+            const cod = parseInt(codVal) || 0;
+
+            let hasError = false;
+
+            // Form Validations checks
+            if (!name) {
+                document.getElementById('error-name').classList.remove('hidden');
+                hasError = true;
+            }
+            if (!phone || phone.length < 10 || isNaN(phone)) {
+                document.getElementById('error-phone').classList.remove('hidden');
+                hasError = true;
+            }
+            if (!address) {
+                document.getElementById('error-address').classList.remove('hidden');
+                hasError = true;
+            }
+            if (!product) {
+                document.getElementById('error-product').classList.remove('hidden');
+                hasError = true;
+            }
+            if (isNaN(weight) || weight <= 0) {
+                document.getElementById('error-weight').classList.remove('hidden');
+                hasError = true;
+            }
+
+            if (hasError) return;
+
+            // Check if simulated network failure is active
+            const isApiErrorEnabled = document.getElementById('toggle-api-error').checked;
+            if (isApiErrorEnabled) {
+                document.getElementById('form-global-error').classList.remove('hidden');
+                return;
+            }
+
+            // Happy Path submission loader overlay
+            const overlay = document.getElementById('loading-overlay');
+            overlay.classList.remove('hidden');
+            overlay.classList.add('opacity-100');
+
+            setTimeout(() => {
+                // Generate a random tracking number & ID suffix
+                const randId = "247-00" + (131 + Math.floor(Math.random() * 100));
+                const randTrack = "247XYZ" + (Math.floor(Math.random() * 900) + 100);
+
+                // Add to database
+                const newOrderObj = {
+                    id: randId,
+                    tracking: randTrack,
+                    name: name,
+                    phone: phone,
+                    address: address,
+                    product: product,
+                    weight: weight,
+                    cod: cod,
+                    status: "DELIVERING",
+                    date: new Date().toISOString().split('T')[0] // today
+                };
+                
+                orders.push(newOrderObj);
+
+                // Clear fields
+                document.getElementById('create-order-form').reset();
+
+                // Hide loading overlay
+                overlay.classList.remove('opacity-100');
+                overlay.classList.add('hidden');
+
+                // Redirect to Order List and display the new row
+                switchTab('order-list');
+                filterOrders();
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
