@@ -104,6 +104,9 @@ Table Users {
 
 ```plantuml
 @startuml
+skinparam SwimlaneWidth 160
+skinparam SwimlaneLineColor #64748B
+skinparam SwimlaneLineThickness 1.5
 skinparam ActivityBackgroundColor #F8FAFC
 skinparam ActivityBorderColor #475569
 skinparam ActivityFontColor #0F172A
@@ -112,62 +115,137 @@ skinparam SymbolColor #475569
 skinparam ConditionBackgroundColor #EFF6FF
 skinparam ConditionBorderColor #3B82F6
 
-start
+|Sales / Admin|
+|Web Portal|
+|247Express|
+|SMS & Telegram|
+|Khách hàng|
 
+|Sales / Admin|
+start
 partition "1. Luồng Tạo Đơn Hàng" {
   :Truy cập Danh sách Đơn hàng;
   :Nhấn nút [Tạo đơn mới];
-  :Điền thông tin form & Upload file CO/CQ;
-  :Nhấn [Xác nhận tạo];
   
-  if (Validate form & kích thước file?) then (Thất bại)
+|Web Portal|
+  :Hiển thị form tạo đơn mới;
+  
+|Sales / Admin|
+  :Điền thông tin form & đính kèm file CO/CQ;
+  :Nhấn nút [Xác nhận tạo];
+
+|Web Portal|
+  if (Validate dữ liệu & kích thước file (<5MB)?) then (Thất bại)
     :Hiển thị lỗi inline màu đỏ dưới ô nhập;
-    stop
+    |Sales / Admin|
+    :Sửa thông tin lỗi;
+    detach
   else (Thành công)
-    :Hệ thống gọi API 247Express;
-    if (Kết nối API thành công?) then (Thất bại)
-      :Hiển thị Banner lỗi màu đỏ;
-      :Nhấn nút [Thử lại] để gửi lại;
-      stop
+    |Web Portal|
+    :Gửi request API Tạo vận đơn;
+    
+    |247Express|
+    if (Đầu nối API nhận yêu cầu?) then (Lỗi kết nối)
+      |Web Portal|
+      :Hiển thị Banner lỗi kết nối màu đỏ;
+      |Sales / Admin|
+      :Nhấn nút [Thử lại] trên Banner;
+      detach
     else (Thành công)
-      :Nhận Tracking ID từ đối tác;
-      :Lưu DB & đổi trạng thái PENDING;
-      :Hệ thống gửi SMS Brandname tự động;
-      :Hiển thị thông báo Tạo đơn thành công;
+      |247Express|
+      :Sinh mã vận đơn (Tracking ID);
+      :Trả về Tracking ID;
+      
+      |Web Portal|
+      :Lưu Database & đổi trạng thái PENDING;
+      :Trigger dịch vụ gửi SMS Brandname;
+      :Hiển thị màn hình chi tiết & báo thành công;
+      
+      |SMS & Telegram|
+      :Gửi SMS Brandname thông báo tạo đơn;
+      
+      |Khách hàng|
+      :Nhận SMS xác nhận mã đơn hàng;
     endif
   endif
 }
 
+|247Express|
 partition "2. Luồng Cập Nhật Hành Trình" {
-  :Nhận Webhook DELIVERING từ 247Express;
+  :Bưu tá lấy hàng vật lý & quét mã;
+  :Gửi Webhook trạng thái DELIVERING;
   note right: Nếu Webhook lỗi, Cron job quét API mỗi 15 phút
-  :Cập nhật trạng thái đơn thành DELIVERING;
+  
+  |Web Portal|
+  :Nhận Webhook & cập nhật trạng thái DELIVERING;
   :Trigger gửi SMS Khách hàng & Telegram Group Sales;
+  
+  |SMS & Telegram|
+  fork
+    :Gửi SMS thông báo đơn đang được đi giao;
+    |Khách hàng|
+    :Nhận SMS báo giao hàng;
+  fork again
+    |SMS & Telegram|
+    :Bot Telegram gửi Alert cập nhật tới Group Sales;
+    |Sales / Admin|
+    :Theo dõi thông tin cập nhật;
+  end fork
 }
 
+|247Express|
 partition "3. Luồng Xử Lý Sự Cố (FAILED)" {
-  :Nhận Webhook GIAO THẤT BẠI từ 247Express;
-  :Cập nhật trạng thái đơn thành FAILED;
-  :Bot Telegram bắn alert tới Group Sales;
-  :Nhân viên Sales click link từ Telegram\nhoặc tìm kiếm đơn hàng trên Portal;
-  :Truy cập chi tiết đơn hàng;
-  :Hiển thị Banner Cảnh báo sự cố;
+  :Bưu tá cập nhật giao hàng thất bại;
+  :Gửi Webhook trạng thái FAILED kèm lý do;
   
+  |Web Portal|
+  :Cập nhật trạng thái đơn thành FAILED & lưu lý do;
+  :Trigger gửi Telegram Alert khẩn;
+  
+  |SMS & Telegram|
+  :Bot Telegram gửi Alert sự cố (kèm lý do & SĐT khách);
+  
+  |Sales / Admin|
+  :Click link từ Telegram Alert;
+  
+  |Web Portal|
+  :Hiển thị chi tiết đơn hàng kèm Banner cảnh báo lỗi;
+  
+  |Sales / Admin|
   if (Lựa chọn hành động xử lý?) then (Yêu cầu Giao lại)
-    :Nhấn [Yêu cầu Giao Lại];
-    :Hệ thống gọi API điều phối 247Express;
-    :Chuyển trạng thái đơn về DELIVERING;
+    :Nhấn nút [Yêu cầu Giao Lại];
+    
+    |Web Portal|
+    :Gọi API điều phối giao lại sang 247Express;
+    
+    |247Express|
+    :Xác nhận yêu cầu & lên lịch giao lại lần 2;
+    
+    |Web Portal|
+    :Đưa trạng thái đơn về DELIVERING;
   else (Xác nhận Hoàn hàng)
-    :Nhấn [Xác nhận Hoàn Hàng];
-    :Hệ thống gọi API chuyển hoàn 247Express;
+    |Sales / Admin|
+    :Nhấn nút [Xác nhận Hoàn Hàng];
+    
+    |Web Portal|
+    :Gọi API yêu cầu chuyển hoàn sang 247Express;
+    
+    |247Express|
+    :Xác nhận yêu cầu chuyển hoàn hàng;
+    
+    |Web Portal|
     :Chuyển trạng thái đơn thành RETURNED;
-    :Gửi Alert cho Ban cung ứng;
+    :Trigger Alert thông báo Ban cung ứng nhận hàng;
   endif
   
-  if (Gửi SMS cập nhật bị lỗi mạng?) then (Có)
-    :Hiển thị nút [Gửi lại] màu đỏ cạnh dòng lịch sử;
-    :Sales nhấn [Gửi lại] để kích hoạt gửi thủ công;
-  else (Không)
+  |Web Portal|
+  if (Kiểm tra gửi SMS Brandname bị lỗi mạng?) then (Có lỗi)
+    :Hiển thị nút [Gửi lại] màu đỏ cạnh lịch sử;
+    |Sales / Admin|
+    :Nhấn [Gửi lại] để kích hoạt gửi thủ công;
+    |Web Portal|
+    :Gửi lại yêu cầu SMS Brandname;
+  else (Không lỗi)
   endif
 }
 
