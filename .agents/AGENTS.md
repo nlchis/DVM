@@ -32,3 +32,10 @@
 
 1. **Liên kết Nguồn Dữ liệu (Traceability)**: Mọi tài liệu downstream (Use Case, Wireframe, Prototype) bắt buộc phải tuân thủ và liên kết thông tin chặt chẽ từ tài liệu upstream (`brainstorm` $\rightarrow$ `spec` $\rightarrow$ `diagram` $\rightarrow$ `usecase` $\rightarrow$ `wireframe` $\rightarrow$ `prototype`).
 2. **Rà soát Tính Đầy đủ (Completeness Audit)**: Mọi Use Case tạo ra phải có đầy đủ 1 Diagram luồng và 1 Wireframe giao diện tương ứng. Tài liệu `spec.md` phải đủ 6 cấu phần (`FR`, `NFR`, `BR`, `VR`, `STR`, `Errors`).
+
+## Quy tắc Kiểm soát Git Commit (Git Commit Control)
+
+> Tuyệt đối KHÔNG ĐƯỢC tự động thực hiện lệnh `git commit` hoặc `git push` sau khi hoàn thành tạo mới/sửa đổi tài liệu hoặc mã nguồn.
+
+1. **Bắt buộc hỏi ý kiến người dùng**: Sau khi hoàn thành xong lượt xử lý (chỉnh sửa file, cập nhật tài liệu), Agent PHẢI liệt kê các tệp đã thay đổi và hỏi người dùng: *"Bạn có muốn commit các thay đổi này lên Git không?"*.
+2. **Đợi xác nhận từ người dùng**: Agent CHỈ ĐƯỢC PHÉP chạy lệnh `git commit` khi và chỉ khi nhận được sự xác nhận đồng ý rõ ràng từ người dùng (ví dụ: "Có", "Commit đi", "Y", ...).
