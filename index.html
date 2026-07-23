@@ -57,30 +57,45 @@
         </div>
 
         <!-- Navigation Cards Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-6">
             <!-- Card 1: Interactive Prototype -->
             <a onclick="window.userClicked=true;" href="docs/order-tracking/prototypes/order-tracking-prototype.html" class="group bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-blue-500/60 p-6 rounded-2xl transition-all duration-300 flex flex-col justify-between space-y-4 shadow-lg hover:shadow-blue-500/10">
                 <div class="space-y-3">
                     <div class="w-12 h-12 bg-blue-500/10 text-blue-400 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
                         <i class="fa-solid fa-desktop"></i>
                     </div>
-                    <h3 class="text-lg font-bold text-white font-title group-hover:text-blue-400 transition-colors">Interactive Prototype</h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">Bản mẫu giao diện Front-end tương tác thực tế với đầy đủ 12 trạng thái đơn, Quản lý Khách hàng, Hợp đồng & Nhập xuất kho.</p>
+                    <h3 class="text-base font-bold text-white font-title group-hover:text-blue-400 transition-colors">Interactive Prototype</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">Bản mẫu giao diện Front-end tương tác với 12 trạng thái đơn, Quản lý Khách hàng, Hợp đồng & Kho.</p>
                 </div>
                 <div class="text-xs font-semibold text-blue-400 flex items-center gap-1.5 pt-2">
-                    <span>Mở Prototype</span>
+                    <span>Mở Prototype UI</span>
                     <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
                 </div>
             </a>
 
-            <!-- Card 2: SRS Document -->
+            <!-- Card 2: SRS HTML Interactive Preview -->
+            <a onclick="window.userClicked=true;" href="docs/order-tracking/srs/srs-preview.html" class="group bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-amber-500/60 p-6 rounded-2xl transition-all duration-300 flex flex-col justify-between space-y-4 shadow-lg hover:shadow-amber-500/10">
+                <div class="space-y-3">
+                    <div class="w-12 h-12 bg-amber-500/10 text-amber-400 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-globe"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-white font-title group-hover:text-amber-400 transition-colors">Bản HTML Giao Diện SRS</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">Bản hiển thị đặc tả SRS đầy đủ dạng HTML có Menu sidebar tìm kiếm, Zoom sơ đồ PlantUML & bảng dữ liệu.</p>
+                </div>
+                <div class="text-xs font-semibold text-amber-400 flex items-center gap-1.5 pt-2">
+                    <span>Mở SRS HTML Preview</span>
+                    <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                </div>
+            </a>
+
+            <!-- Card 3: SRS Markdown Document -->
             <a onclick="window.userClicked=true;" href="docs/order-tracking/srs/srs.md" class="group bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-purple-500/60 p-6 rounded-2xl transition-all duration-300 flex flex-col justify-between space-y-4 shadow-lg hover:shadow-purple-500/10">
                 <div class="space-y-3">
                     <div class="w-12 h-12 bg-purple-500/10 text-purple-400 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
                         <i class="fa-solid fa-file-contract"></i>
                     </div>
-                    <h3 class="text-lg font-bold text-white font-title group-hover:text-purple-400 transition-colors">Tài Liệu Đặc Tả SRS (v1.3.3)</h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">Tổng hợp toàn bộ yêu cầu phần mềm, quy tắc nghiệp vụ BR, 12 trạng thái đơn hàng và các Yêu cầu phi chức năng nghiệp vụ.</p>
+                    <h3 class="text-base font-bold text-white font-title group-hover:text-purple-400 transition-colors">Đặc Tả SRS Markdown</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">Tổng hợp toàn bộ yêu cầu phần mềm, quy tắc nghiệp vụ BR, 12 trạng thái đơn hàng và NFRs.</p>
                 </div>
                 <div class="text-xs font-semibold text-purple-400 flex items-center gap-1.5 pt-2">
                     <span>Đọc SRS Specification</span>
@@ -88,14 +103,14 @@
                 </div>
             </a>
 
-            <!-- Card 3: Use Cases & Flowcharts -->
+            <!-- Card 4: Use Cases & Flowcharts -->
             <a onclick="window.userClicked=true;" href="docs/order-tracking/usecases/index.md" class="group bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-emerald-500/60 p-6 rounded-2xl transition-all duration-300 flex flex-col justify-between space-y-4 shadow-lg hover:shadow-emerald-500/10">
                 <div class="space-y-3">
                     <div class="w-12 h-12 bg-emerald-500/10 text-emerald-400 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
                         <i class="fa-solid fa-diagram-project"></i>
                     </div>
-                    <h3 class="text-lg font-bold text-white font-title group-hover:text-emerald-400 transition-colors">9 Use Cases & Flowcharts</h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">Đặc tả chi tiết 9 Use Cases chuẩn IT-BA (UC-01 đến UC-09) kèm Sơ đồ Flowchart PlantUML và liên kết Wireframes.</p>
+                    <h3 class="text-base font-bold text-white font-title group-hover:text-emerald-400 transition-colors">9 Use Cases & Flowcharts</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">Đặc tả chi tiết 9 Use Cases chuẩn IT-BA (UC-01 đến UC-09) kèm Sơ đồ Flowchart PlantUML.</p>
                 </div>
                 <div class="text-xs font-semibold text-emerald-400 flex items-center gap-1.5 pt-2">
                     <span>Xem 9 Use Cases</span>
