@@ -12,3 +12,11 @@
 ## Quy tắc viết Markdown (Markdown formatting)
 
 > Tuyệt đối KHÔNG ĐƯỢC để dòng trống (empty line) xen giữa các hàng (rows) trong bảng Markdown. Việc để dòng trống giữa các hàng sẽ làm phá vỡ cấu trúc bảng (break table rendering) khi trình bày trên giao diện IDE hoặc khi biên dịch ra HTML.
+
+## Quy tắc Rà soát Vùng ảnh hưởng (Blast Radius & Cascade Update)
+
+> MỖI LẦN có bất kỳ tác động sửa đổi nào trên một tài liệu (Spec, Brainstorm, Diagram, Use Case, Wireframe, Prototype, SRS, v.v.):
+
+1. **Tự động xác định Blast Radius**: Agent PHẢI tự động rà soát lại toàn bộ các tài liệu liên đới ở cả tuyến trước (upstream) và tuyến sau (downstream) liên quan đến nội dung vừa thay đổi (VD: thay đổi Tên/Mã trạng thái, Tên trường, Mã lỗi, Mã BR/FR/STR/VR).
+2. **Tự động lan truyền cập nhật (Cascade Update)**: Tiến hành cập nhật đồng bộ 100% trên tất cả các file bị ảnh hưởng (`spec.md`, `srs.md`, `flows.md`, `states.md`, Wireframe ASCII/HTML, Prototype, Use Cases...) ngay trong lượt xử lý mà không chờ người dùng nhắc nhở hay tự kiểm tra.
+3. **Kiểm tra tính nhất quán (Consistency Audit)**: Quét và đảm bảo tất cả các thuật ngữ, tên trạng thái, mã ID tham chiếu hoàn toàn đồng nhất giữa mọi tệp tin trong toàn hệ thống.
